@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SuperPlat 화이트 테마 씬 설정 UI - 모바일 최적화</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            transition: filter 0.6s ease;
+            position: fixed;
+            touch-action: none;
+        }
+
+        /* 전체 배경 블러 처리 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            z-index: -1;
+        }
+
+        /* 필터 효과들 */
+        body.filter-none {
+            /* 기본 - 필터 없음 */
+        }
+
+        body.filter-warm {
+            filter: sepia(0.2) hue-rotate(-10deg) saturate(1.3) brightness(1.05);
+        }
+
+        body.filter-cold {
+            filter: hue-rotate(180deg) saturate(0.9) brightness(1.05);
+        }
+
+        body.filter-blackwhite {
+            filter: grayscale(100%) contrast(1.2);
+        }
+
+        body.filter-ash {
+            filter: grayscale(0.7) contrast(0.9) brightness(1.1);
+        }
+
+        body.filter-noir {
+            filter: grayscale(100%) contrast(1.5) brightness(0.9);
+        }
+
+        body.filter-sepia {
+            filter: sepia(1) brightness(1.05);
+        }
+
+        body.filter-vintage {
+            filter: sepia(0.4) contrast(1.2) brightness(1.1) saturate(1.2);
+        }
+
+        body.filter-nostalgia {
+            filter: sepia(0.5) saturate(0.8) contrast(0.9) brightness(1.1);
+        }
+
+        body.filter-pastel {
+            filter: saturate(0.5) brightness(1.2) contrast(0.8);
+        }
+
+        body.filter-vivid {
+            filter: saturate(1.5) contrast(1.2);
+        }
+
+        body.filter-horror {
+            filter: hue-rotate(180deg) saturate(2) contrast(1.5) brightness(0.8);
+        }
+
+        body.filter-purple {
+            filter: hue-rotate(270deg) saturate(1.5) brightness(1.05);
+        }
+
+        body.filter-crimson {
+            filter: hue-rotate(330deg) saturate(2) contrast(1.2);
+        }
+
+        body.filter-blood {
+            filter: hue-rotate(350deg) saturate(2.5) contrast(1.3) brightness(0.9);
+        }
+
+        body.filter-glow {
+            filter: brightness(1.2) contrast(1.1) blur(0.3px);
+        }
+
+        /* 동적 배경 */
+        #skyBackground {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: background 1s ease;
+            z-index: 0;
+        }
+
+        /* 태양/달 */
+        #celestialBody {
+            position: absolute;
+            width: clamp(60px, 10vw, 100px);
+            height: clamp(60px, 10vw, 100px);
+            border-radius: 50%;
+            transition: all 1s ease;
+            z-index: 1;
+        }
+
+        .sun {
+            background: radial-gradient(circle, #ffeb3b, #ff9800);
+            box-shadow: 0 0 50px #ffeb3b;
+        }
+
+        .moon {
+            background: radial-gradient(circle, #fff, #e0e0e0);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        /* UI 스케일링 컨테이너 - 모바일 대응 핵심 */
+        #uiScaleContainer {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            transform-origin: top center;
+            z-index: 1000;
+            /* 기본 스케일 설정 */
+            --ui-scale: 1;
+            transform: translateX(-50%) scale(var(--ui-scale));
+        }
+
+        /* 다크 테마 통합 UI 바 - 개선된 버전 */
+        #unifiedBar {
+            display: inline-flex; /* inline-flex로 변경하여 콘텐츠 크기에 맞춤 */
+            align-items: center;
+            gap: 1px;
+            background: rgba(20, 20, 30, 0.92);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 0;
+            border-radius: 28px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                0 2px 8px rgba(0, 0, 0, 0.25),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-wrap: nowrap;
+        }
+
+        /* 섹션 공통 스타일 - 다크 테마 */
+        .ui-section {
+            position: relative;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex; /* inline-flex로 변경 */
+            align-items: center;
+            gap: 6px;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            min-height: 44px;
+            flex-shrink: 0; /* 축소 방지 */
+        }
+
+        .ui-section:first-child {
+            border-radius: 28px 0 0 28px;
+        }
+
+        .ui-section:last-child {
+            border-radius: 0 28px 28px 0;
+            border-right: none;
+        }
+
+        .ui-section:hover, .ui-section:active {
+            background: rgba(0, 188, 212, 0.08);
+        }
+
+        /* 시계 섹션 - 다크 테마 */
+        .clock-section {
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            min-width: 160px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: default;
+        }
+
+        .clock-section:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* 디지털 시계 - 7세그먼트 대체 (모바일용) */
+        .digital-clock {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            font-weight: bold;
+            color: #00e5ff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+            display: none; /* 기본적으로 숨김 */
+        }
+
+        /* 7-Segment 디스플레이 - PC용 */
+        .seven-segment-display {
+            display: flex;
+            gap: 10px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            box-shadow: 
+                inset 0 2px 6px rgba(0, 0, 0, 0.4),
+                0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .digit-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        .seven-segment {
+            position: relative;
+            width: 32px;
+            height: 48px;
+        }
+
+        .segment {
+            position: absolute;
+            background: rgba(0, 229, 255, 0.15);
+            opacity: 1;
+            transition: background 0.15s ease;
+        }
+
+        .segment.on {
+            background: #00e5ff;
+            box-shadow: 0 0 4px rgba(0, 229, 255, 0.6);
+        }
+
+        /* 세그먼트 위치 */
+        .segment.horizontal {
+            width: 65%;
+            height: 8%;
+            left: 17.5%;
+            border-radius: 20%;
+        }
+
+        .segment.a { top: 0; }
+        .segment.g { top: 46%; }
+        .segment.d { top: 92%; }
+
+        .segment.vertical {
+            width: 10%;
+            height: 40%;
+            border-radius: 20%;
+        }
+
+        .segment.f { top: 4%; left: 10%; }
+        .segment.b { top: 4%; right: 10%; }
+        .segment.e { top: 52%; left: 10%; }
+        .segment.c { top: 52%; right: 10%; }
+
+        /* 콜론 */
+        .colon {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 14px;
+            padding: 0 4px;
+        }
+
+        .colon-dot {
+            width: 5px;
+            height: 5px;
+            background: #00e5ff;
+            border-radius: 50%;
+            animation: colon-blink 1s infinite;
+        }
+
+        @keyframes colon-blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0.2; }
+        }
+
+        /* TOD 슬라이더 */
+        .tod-slider-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+        }
+
+        .tod-slider {
+            position: relative;
+            flex: 1;
+            height: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tod-track {
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, 
+                #1a237e 0%, 
+                #ff6f00 25%, 
+                #87ceeb 50%, 
+                #ff6f00 75%, 
+                #1a237e 100%);
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .tod-handle {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.3),
+                0 1px 3px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            border: 2px solid #00e5ff;
+            touch-action: none;
+        }
+
+        .tod-handle:active {
+            cursor: grabbing;
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 3px 12px rgba(0, 229, 255, 0.5);
+        }
+
+        /* 필터 캐러셀 섹션 */
+        .filter-carousel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            min-width: 280px;
+        }
+
+        .filter-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .filter-arrow {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .filter-arrow:hover {
+            background: rgba(0, 229, 255, 0.1);
+            border-color: rgba(0, 229, 255, 0.3);
+        }
+
+        .filter-arrow:active {
+            transform: scale(0.9);
+        }
+
+        .filter-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #00e5ff;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .filter-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .filter-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .filter-dot.active {
+            width: 10px;
+            height: 10px;
+            background: #00e5ff;
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+        }
+
+        /* 드롭다운 - 다크 테마 */
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 12px;
+            background: rgba(20, 20, 30, 0.96);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: none;
+            min-width: 220px;
+            z-index: 1001;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .dropdown-content.active {
+            display: block;
+            animation: dropdownSlide 0.3s ease;
+        }
+
+        @keyframes dropdownSlide {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* 버튼들 - 다크 테마 */
+        .weather-option,
+        .shading-option {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 14px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .weather-option:hover,
+        .shading-option:hover {
+            background: rgba(0, 229, 255, 0.08);
+            border-color: rgba(0, 229, 255, 0.2);
+        }
+
+        .weather-option:active,
+        .shading-option:active {
+            transform: scale(0.98);
+        }
+
+        .weather-option.active,
+        .shading-option.active {
+            background: rgba(0, 229, 255, 0.15);
+            border-color: rgba(0, 229, 255, 0.3);
+            color: #00e5ff;
+        }
+
+        /* 저장 섹션 - 다크 테마 */
+        .save-section {
+            background: rgba(0, 229, 255, 0.06);
+        }
+
+        .save-section:hover {
+            background: rgba(0, 229, 255, 0.1);
+        }
+
+        /* 캐릭터 */
+        #character {
+            position: absolute;
+            left: 50%;
+            bottom: 15%;
+            transform: translateX(-50%);
+            width: clamp(150px, 30vw, 250px);
+            height: clamp(225px, 45vw, 375px);
+            z-index: 100;
+            transition: filter 0.3s ease;
+        }
+
+        .character-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #9C27B0, #673AB7);
+            border-radius: 20px 20px 10px 10px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .toon-shading .character-body {
+            background: #9C27B0;
+            box-shadow: 
+                -10px 0 0 #7B1FA2,
+                0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid #4A148C;
+        }
+
+        .character-head {
+            position: absolute;
+            top: -25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 33%;
+            background: #FFDBAC;
+            border-radius: 50%;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .toon-shading .character-head {
+            background: #FFDBAC;
+            box-shadow: 
+                -8px 0 0 #F4B88A,
+                0 5px 20px rgba(0, 0, 0, 0.4);
+            border: 3px solid #E09F7D;
+        }
+
+        /* 날씨 효과 */
+        .weather-effects {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .rain {
+            position: absolute;
+            width: 2px;
+            height: clamp(60px, 12vh, 100px);
+            background: linear-gradient(transparent, rgba(174, 194, 224, 0.7));
+            animation: rain-fall linear infinite;
+        }
+
+        @keyframes rain-fall {
+            to { transform: translateY(100vh); }
+        }
+
+        .snow {
+            position: absolute;
+            width: clamp(8px, 1.5vw, 12px);
+            height: clamp(8px, 1.5vw, 12px);
+            background: white;
+            border-radius: 50%;
+            animation: snow-fall linear infinite;
+            opacity: 0.9;
+        }
+
+        @keyframes snow-fall {
+            to { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 100px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .cloud.active {
+            opacity: 0.7;
+            animation: cloud-drift 20s linear infinite;
+        }
+
+        @keyframes cloud-drift {
+            from { transform: translateX(-200px); }
+            to { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* 지면 */
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20%;
+            background: linear-gradient(180deg, #8BC34A, #689F38);
+            z-index: 10;
+        }
+
+        .toon-shading #ground {
+            background: #8BC34A;
+            border-top: 5px solid #689F38;
+        }
+
+        /* 화살표 인디케이터 */
+        .dropdown-arrow {
+            font-size: 10px;
+            margin-left: 4px;
+            transition: transform 0.3s ease;
+            opacity: 0.5;
+        }
+
+        .ui-section.active .dropdown-arrow {
+            transform: rotate(180deg);
+            opacity: 0.8;
+        }
+
+        /* 기타 요소들 */
+        .intensity-bar {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .intensity-level {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .intensity-level.active {
+            background: linear-gradient(135deg, #00e5ff, #00acc1);
+            border-color: #00e5ff;
+            transform: scale(1.2);
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+        }
+
+        .preset-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .preset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .preset-item:hover {
+            background: rgba(0, 229, 255, 0.08);
+            border-color: rgba(0, 229, 255, 0.2);
+        }
+
+        .preset-item:active {
+            transform: scale(0.98);
+        }
+
+        .save-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+
+        .save-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .save-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #00e5ff, #00acc1);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 229, 255, 0.2);
+        }
+
+        .save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 229, 255, 0.3);
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 모바일 최적화된 반응형 스타일 */
+        @media (max-width: 768px) {
+            /* UI 동적 스케일링 - 핵심 개선 */
+            #uiScaleContainer {
+                --ui-scale: 0.85;
+                top: 10px;
+            }
+
+            /* 7세그먼트 숨기고 디지털 시계 표시 */
+            .seven-segment-display {
+                display: none !important;
+            }
+
+            .digital-clock {
+                display: block !important;
+            }
+
+            .ui-section {
+                padding: 10px 12px;
+                font-size: 12px;
+                min-width: auto;
+            }
+
+            /* 모바일에서 텍스트 레이블 숨기기 (아이콘만 표시) */
+            .ui-section > span:not(.dropdown-arrow):not(:first-child) {
+                display: none;
+            }
+
+            /* 시계 섹션은 예외 */
+            .clock-section {
+                min-width: 100px;
+            }
+
+            .clock-section span {
+                display: block !important;
+            }
+        }
+
+        /* 작은 모바일 (550px 이하) */
+        @media (max-width: 550px) {
+            #uiScaleContainer {
+                --ui-scale: 0.75;
+                top: 8px;
+            }
+
+            .ui-section {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+
+            .clock-section {
+                min-width: 90px;
+                padding: 6px 10px;
+            }
+
+            .dropdown-content {
+                position: fixed;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                width: 90vw;
+                max-width: 90vw;
+            }
+        }
+
+        /* 아주 작은 화면 (420px 이하) */
+        @media (max-width: 420px) {
+            #uiScaleContainer {
+                --ui-scale: 0.65;
+            }
+
+            .digital-clock {
+                font-size: 16px;
+                letter-spacing: 1px;
+            }
+        }
+
+        /* 초소형 화면 (380px 이하) */
+        @media (max-width: 380px) {
+            #uiScaleContainer {
+                --ui-scale: 0.6;
+            }
+
+            .digital-clock {
+                font-size: 14px;
+            }
+        }
+
+        /* 가로 모드 최적화 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #uiScaleContainer {
+                --ui-scale: 0.8;
+                top: 5px;
+            }
+
+            .dropdown-content {
+                max-height: 80vh;
+            }
+        }
+
+        /* 가로 모드 + 작은 화면 */
+        @media (orientation: landscape) and (max-height: 400px) {
+            #uiScaleContainer {
+                --ui-scale: 0.7;
+            }
+        }
+
+        /* 터치 디바이스 최적화 */
+        @media (hover: none) and (pointer: coarse) {
+            .ui-section:hover {
+                background: transparent;
+            }
+
+            .ui-section:active {
+                background: rgba(0, 229, 255, 0.08);
+            }
+
+            /* 터치 타겟 크기 확보 */
+            .ui-section {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+
+        /* 안전 영역 대응 (노치 디바이스) */
+        @supports (padding: env(safe-area-inset-top)) {
+            #uiScaleContainer {
+                top: calc(10px + env(safe-area-inset-top));
+            }
+
+            #ground {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        /* UI 스케일 계산을 위한 JavaScript 적용 스타일 */
+        .ui-width-check {
+            position: absolute;
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 동적 배경 -->
+    <div id="skyBackground"></div>
+    
+    <!-- 태양/달 -->
+    <div id="celestialBody" class="sun"></div>
+    
+    <!-- 날씨 효과 컨테이너 -->
+    <div class="weather-effects" id="weatherEffects"></div>
+    
+    <!-- 구름들 -->
+    <div class="cloud" id="cloud1" style="width: 200px; height: 60px; top: 20%; left: 10%;"></div>
+    <div class="cloud" id="cloud2" style="width: 150px; height: 50px; top: 30%; left: 60%;"></div>
+    <div class="cloud" id="cloud3" style="width: 180px; height: 55px; top: 25%; left: 35%;"></div>
+    
+    <!-- 캐릭터 -->
+    <div id="character">
+        <div class="character-body">
+            <div class="character-head"></div>
+        </div>
+    </div>
+    
+    <!-- 지면 -->
+    <div id="ground"></div>
+    
+    <!-- UI 스케일링 컨테이너 추가 -->
+    <div id="uiScaleContainer">
+        <!-- 통합 UI 바 -->
+        <div id="unifiedBar">
+            <!-- 필터 -->
+            <div class="ui-section" id="filterSection">
+                <span>🎨</span>
+                <span id="filterText">기본</span>
+                <span class="dropdown-arrow">▼</span>
+                <div class="dropdown-content" id="filterDropdown">
+                    <div class="filter-carousel">
+                        <div class="filter-display">
+                            <div class="filter-arrow" onclick="previousFilter()">◀</div>
+                            <div class="filter-name" id="filterName">기본</div>
+                            <div class="filter-arrow" onclick="nextFilter()">▶</div>
+                        </div>
+                        <div class="filter-dots" id="filterDots">
+                            <!-- 점들이 자동으로 생성됨 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 날씨 -->
+            <div class="ui-section" id="weatherSection">
+                <span id="weatherIcon">☀️</span>
+                <span id="weatherText">맑음</span>
+                <span class="dropdown-arrow">▼</span>
+                <div class="dropdown-content" id="weatherDropdown">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="weather-option active" data-weather="clear">
+                            <div style="font-size: 24px; margin-bottom: 4px;">☀️</div>
+                            <div style="font-size: 12px;">맑음</div>
+                        </div>
+                        <div class="weather-option" data-weather="cloudy">
+                            <div style="font-size: 24px; margin-bottom: 4px;">☁️</div>
+                            <div style="font-size: 12px;">흐림</div>
+                            <div class="intensity-bar">
+                                <div class="intensity-level" data-level="1"></div>
+                                <div class="intensity-level" data-level="2"></div>
+                                <div class="intensity-level" data-level="3"></div>
+                                <div class="intensity-level" data-level="4"></div>
+                            </div>
+                        </div>
+                        <div class="weather-option" data-weather="rain">
+                            <div style="font-size: 24px; margin-bottom: 4px;">🌧️</div>
+                            <div style="font-size: 12px;">비</div>
+                            <div class="intensity-bar">
+                                <div class="intensity-level" data-level="1"></div>
+                                <div class="intensity-level" data-level="2"></div>
+                                <div class="intensity-level" data-level="3"></div>
+                                <div class="intensity-level" data-level="4"></div>
+                            </div>
+                        </div>
+                        <div class="weather-option" data-weather="snow">
+                            <div style="font-size: 24px; margin-bottom: 4px;">❄️</div>
+                            <div style="font-size: 12px;">눈</div>
+                            <div class="intensity-bar">
+                                <div class="intensity-level" data-level="1"></div>
+                                <div class="intensity-level" data-level="2"></div>
+                                <div class="intensity-level" data-level="3"></div>
+                                <div class="intensity-level" data-level="4"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 시간 섹션 개선 -->
+            <div class="ui-section clock-section">
+                <!-- 디지털 시계 (모바일용) -->
+                <div class="digital-clock" id="digitalClock">12:00</div>
+                
+                <!-- 7-segment 디스플레이 (데스크톱용) -->
+                <div class="seven-segment-display">
+                    <div class="digit-group">
+                        <div class="seven-segment" id="hour1">
+                            <div class="segment horizontal a"></div>
+                            <div class="segment vertical f"></div>
+                            <div class="segment vertical b"></div>
+                            <div class="segment horizontal g"></div>
+                            <div class="segment vertical e"></div>
+                            <div class="segment vertical c"></div>
+                            <div class="segment horizontal d"></div>
+                        </div>
+                        <div class="seven-segment" id="hour2">
+                            <div class="segment horizontal a"></div>
+                            <div class="segment vertical f"></div>
+                            <div class="segment vertical b"></div>
+                            <div class="segment horizontal g"></div>
+                            <div class="segment vertical e"></div>
+                            <div class="segment vertical c"></div>
+                            <div class="segment horizontal d"></div>
+                        </div>
+                    </div>
+                    <div class="colon">
+                        <div class="colon-dot"></div>
+                        <div class="colon-dot"></div>
+                    </div>
+                    <div class="digit-group">
+                        <div class="seven-segment" id="minute1">
+                            <div class="segment horizontal a"></div>
+                            <div class="segment vertical f"></div>
+                            <div class="segment vertical b"></div>
+                            <div class="segment horizontal g"></div>
+                            <div class="segment vertical e"></div>
+                            <div class="segment vertical c"></div>
+                            <div class="segment horizontal d"></div>
+                        </div>
+                        <div class="seven-segment" id="minute2">
+                            <div class="segment horizontal a"></div>
+                            <div class="segment vertical f"></div>
+                            <div class="segment vertical b"></div>
+                            <div class="segment horizontal g"></div>
+                            <div class="segment vertical e"></div>
+                            <div class="segment vertical c"></div>
+                            <div class="segment horizontal d"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tod-slider-container">
+                    <span style="font-size: 10px;">🌅</span>
+                    <div class="tod-slider">
+                        <div class="tod-track" id="todTrack">
+                            <div class="tod-handle" id="todHandle"></div>
+                        </div>
+                    </div>
+                    <span style="font-size: 10px;">🌙</span>
+                </div>
+            </div>
+            
+            <!-- 셰이딩 -->
+            <div class="ui-section" id="shadingSection">
+                <span>🖌️</span>
+                <span id="shadingText">일반</span>
+                <span class="dropdown-arrow">▼</span>
+                <div class="dropdown-content" id="shadingDropdown">
+                    <div style="display: flex; gap: 10px;">
+                        <div class="shading-option active" data-shading="normal" style="flex: 1;">일반</div>
+                        <div class="shading-option" data-shading="toon" style="flex: 1;">툰</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 저장 -->
+            <div class="ui-section save-section" id="saveSection">
+                <span>💾</span>
+                <span>저장</span>
+                <span class="dropdown-arrow">▼</span>
+                <div class="dropdown-content" id="saveDropdown">
+                    <div class="preset-list" id="presetList">
+                        <!-- 저장된 프리셋들이 여기 표시됨 -->
+                    </div>
+                    <div style="display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid rgba(0, 0, 0, 0.06); margin-top: 12px;">
+                        <input type="text" class="save-input" id="presetName" placeholder="프리셋 이름">
+                        <button class="save-btn" onclick="savePreset()">저장</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 필터 정의
+        const filters = [
+            { name: '기본', class: 'none' },
+            { name: '따뜻함', class: 'warm' },
+            { name: '차가움', class: 'cold' },
+            { name: '흑백', class: 'blackwhite' },
+            { name: '애쉬', class: 'ash' },
+            { name: '느와르', class: 'noir' },
+            { name: '세피아', class: 'sepia' },
+            { name: '빈티지', class: 'vintage' },
+            { name: '노스텔지어', class: 'nostalgia' },
+            { name: '파스텔', class: 'pastel' },
+            { name: '선명하게', class: 'vivid' },
+            { name: '호러', class: 'horror' },
+            { name: '퍼플', class: 'purple' },
+            { name: '크림슨', class: 'crimson' },
+            { name: '블러드', class: 'blood' },
+            { name: '광휘', class: 'glow' }
+        ];
+
+        let currentFilterIndex = 0;
+
+        // 전역 상태 관리
+        const state = {
+            filter: 'none',
+            weather: 'clear',
+            weatherIntensity: 2,
+            timeOfDay: 0.5,
+            shadingMode: 'normal',
+            manualTime: false
+        };
+
+        // 동적 UI 스케일링 함수 - 핵심 개선
+        function adjustUIScale() {
+            const container = document.getElementById('uiScaleContainer');
+            const unifiedBar = document.getElementById('unifiedBar');
+            const viewportWidth = window.innerWidth;
+            
+            // UI 바의 실제 너비 계산
+            const uiWidth = unifiedBar.scrollWidth;
+            
+            // 뷰포트 너비의 95%를 최대 너비로 설정
+            const maxWidth = viewportWidth * 0.95;
+            
+            if (uiWidth > maxWidth) {
+                // 필요한 스케일 계산
+                const scale = maxWidth / uiWidth;
+                container.style.setProperty('--ui-scale', scale);
+            } else {
+                // 기본 반응형 스케일 적용
+                if (viewportWidth <= 380) {
+                    container.style.setProperty('--ui-scale', '0.6');
+                } else if (viewportWidth <= 420) {
+                    container.style.setProperty('--ui-scale', '0.65');
+                } else if (viewportWidth <= 550) {
+                    container.style.setProperty('--ui-scale', '0.75');
+                } else if (viewportWidth <= 768) {
+                    container.style.setProperty('--ui-scale', '0.85');
+                } else {
+                    container.style.setProperty('--ui-scale', '1');
+                }
+            }
+        }
+
+        // 화면 크기 변경 감지
+        window.addEventListener('resize', adjustUIScale);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(adjustUIScale, 100); // 방향 전환 후 약간의 지연
+        });
+
+        // 필터 점 생성
+        function createFilterDots() {
+            const dotsContainer = document.getElementById('filterDots');
+            dotsContainer.innerHTML = '';
+            
+            filters.forEach((filter, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'filter-dot';
+                if (index === currentFilterIndex) {
+                    dot.classList.add('active');
+                }
+                dot.onclick = () => selectFilter(index);
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        // 필터 선택
+        function selectFilter(index) {
+            currentFilterIndex = index;
+            const filter = filters[index];
+            
+            // 이전 필터 제거
+            filters.forEach(f => {
+                document.body.classList.remove(`filter-${f.class}`);
+            });
+            
+            // 새 필터 적용
+            document.body.classList.add(`filter-${filter.class}`);
+            state.filter = filter.class;
+            
+            // UI 업데이트
+            document.getElementById('filterName').textContent = filter.name;
+            document.getElementById('filterText').textContent = filter.name;
+            
+            // 점 업데이트
+            document.querySelectorAll('.filter-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        // 이전 필터
+        function previousFilter() {
+            currentFilterIndex = (currentFilterIndex - 1 + filters.length) % filters.length;
+            selectFilter(currentFilterIndex);
+        }
+
+        // 다음 필터
+        function nextFilter() {
+            currentFilterIndex = (currentFilterIndex + 1) % filters.length;
+            selectFilter(currentFilterIndex);
+        }
+
+        // 7-segment 디스플레이 패턴
+        const segmentPatterns = {
+            0: ['a', 'b', 'c', 'd', 'e', 'f'],
+            1: ['b', 'c'],
+            2: ['a', 'b', 'd', 'e', 'g'],
+            3: ['a', 'b', 'c', 'd', 'g'],
+            4: ['b', 'c', 'f', 'g'],
+            5: ['a', 'c', 'd', 'f', 'g'],
+            6: ['a', 'c', 'd', 'e', 'f', 'g'],
+            7: ['a', 'b', 'c'],
+            8: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+            9: ['a', 'b', 'c', 'd', 'f', 'g']
+        };
+
+        // 7-segment 디스플레이 업데이트
+        function updateSevenSegment(elementId, digit) {
+            const segments = document.querySelectorAll(`#${elementId} .segment`);
+            segments.forEach(segment => {
+                segment.classList.remove('on');
+            });
+            
+            const pattern = segmentPatterns[digit];
+            pattern.forEach(segmentClass => {
+                const segment = document.querySelector(`#${elementId} .segment.${segmentClass}`);
+                if (segment) segment.classList.add('on');
+            });
+        }
+
+        // 시계 업데이트 - 디지털 시계 추가
+        let previousTimeString = '';
+        function updateClock() {
+            if (!state.manualTime) {
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const timeString = hours + minutes;
+                
+                // 디지털 시계 업데이트 (모바일용)
+                document.getElementById('digitalClock').textContent = `${hours}:${minutes}`;
+                
+                // 7세그먼트 업데이트 (데스크톱용)
+                if (timeString !== previousTimeString) {
+                    updateSevenSegment('hour1', parseInt(hours[0]));
+                    updateSevenSegment('hour2', parseInt(hours[1]));
+                    updateSevenSegment('minute1', parseInt(minutes[0]));
+                    updateSevenSegment('minute2', parseInt(minutes[1]));
+                    previousTimeString = timeString;
+                }
+                
+                const totalMinutes = now.getHours() * 60 + now.getMinutes();
+                const dayProgress = totalMinutes / (24 * 60);
+                state.timeOfDay = dayProgress;
+                document.getElementById('todHandle').style.left = (dayProgress * 100) + '%';
+                updateDayNightCycle(dayProgress);
+            }
+        }
+
+        // 1분마다 시계 업데이트
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 드롭다운 관리
+        const sections = ['filter', 'weather', 'shading', 'save'];
+        
+        sections.forEach(section => {
+            const sectionEl = document.getElementById(`${section}Section`);
+            const dropdownEl = document.getElementById(`${section}Dropdown`);
+            
+            sectionEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                sections.forEach(other => {
+                    if (other !== section) {
+                        document.getElementById(`${other}Section`).classList.remove('active');
+                        document.getElementById(`${other}Dropdown`).classList.remove('active');
+                    }
+                });
+                
+                sectionEl.classList.toggle('active');
+                dropdownEl.classList.toggle('active');
+                
+                if (section === 'save' && dropdownEl.classList.contains('active')) {
+                    loadPresets();
+                }
+            });
+        });
+
+        // 페이지 클릭시 모든 드롭다운 닫기
+        document.addEventListener('click', () => {
+            sections.forEach(section => {
+                document.getElementById(`${section}Section`).classList.remove('active');
+                document.getElementById(`${section}Dropdown`).classList.remove('active');
+            });
+        });
+
+        // 드롭다운 내부 클릭 이벤트 전파 방지
+        document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+            dropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // TOD 슬라이더 제어
+        const todTrack = document.getElementById('todTrack');
+        const todHandle = document.getElementById('todHandle');
+        let isDragging = false;
+
+        function updateTodPosition(clientX) {
+            const rect = todTrack.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const percentage = Math.max(0, Math.min(1, x / rect.width));
+            
+            state.timeOfDay = percentage;
+            state.manualTime = true;
+            todHandle.style.left = (percentage * 100) + '%';
+            
+            const totalMinutes = Math.floor(percentage * 24 * 60);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            // 디지털 시계 업데이트
+            const hoursStr = hours.toString().padStart(2, '0');
+            const minutesStr = minutes.toString().padStart(2, '0');
+            document.getElementById('digitalClock').textContent = `${hoursStr}:${minutesStr}`;
+            
+            // 7세그먼트 업데이트
+            updateSevenSegment('hour1', Math.floor(hours / 10));
+            updateSevenSegment('hour2', hours % 10);
+            updateSevenSegment('minute1', Math.floor(minutes / 10));
+            updateSevenSegment('minute2', minutes % 10);
+            
+            updateDayNightCycle(percentage);
+        }
+
+        // 마우스 이벤트
+        todTrack.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            updateTodPosition(e.clientX);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                updateTodPosition(e.clientX);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // 터치 이벤트
+        todTrack.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            updateTodPosition(e.touches[0].clientX);
+            e.preventDefault();
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                updateTodPosition(e.touches[0].clientX);
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // 더블클릭/더블탭으로 실시간 모드 복귀
+        todTrack.addEventListener('dblclick', () => {
+            state.manualTime = false;
+            updateClock();
+        });
+
+        let lastTap = 0;
+        todTrack.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapGap = currentTime - lastTap;
+            lastTap = currentTime;
+            
+            if (tapGap < 300 && tapGap > 0) {
+                state.manualTime = false;
+                updateClock();
+                e.preventDefault();
+            }
+        });
+
+        // 날씨 선택
+        document.querySelectorAll('.weather-option').forEach(option => {
+            option.addEventListener('click', (e) => {
+                if (e.target.classList.contains('intensity-level')) {
+                    e.stopPropagation();
+                    return;
+                }
+                
+                const weather = option.dataset.weather;
+                selectWeather(weather);
+                
+                document.querySelectorAll('.weather-option').forEach(opt => {
+                    opt.classList.toggle('active', opt === option);
+                });
+            });
+            
+            option.querySelectorAll('.intensity-level').forEach((level, index) => {
+                level.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const weather = option.dataset.weather;
+                    setWeatherIntensity(weather, index + 1, option);
+                });
+            });
+        });
+
+        function selectWeather(weather) {
+            state.weather = weather;
+            
+            const weatherData = {
+                clear: { icon: '☀️', text: '맑음' },
+                cloudy: { icon: '☁️', text: '흐림' },
+                rain: { icon: '🌧️', text: '비' },
+                snow: { icon: '❄️', text: '눈' }
+            };
+            
+            document.getElementById('weatherIcon').textContent = weatherData[weather].icon;
+            document.getElementById('weatherText').textContent = weatherData[weather].text;
+            
+            applyWeatherEffects(weather, state.weatherIntensity);
+        }
+
+        function setWeatherIntensity(weather, intensity, option) {
+            state.weatherIntensity = intensity;
+            
+            option.querySelectorAll('.intensity-level').forEach((level, index) => {
+                level.classList.toggle('active', index < intensity);
+            });
+            
+            if (state.weather === weather) {
+                applyWeatherEffects(weather, intensity);
+            }
+        }
+
+        function applyWeatherEffects(weather, intensity) {
+            const effectsContainer = document.getElementById('weatherEffects');
+            effectsContainer.innerHTML = '';
+            
+            const clouds = document.querySelectorAll('.cloud');
+            clouds.forEach(cloud => {
+                cloud.classList.toggle('active', weather === 'cloudy');
+            });
+            
+            switch(weather) {
+                case 'rain':
+                    const rainCount = intensity * 10;
+                    for (let i = 0; i < rainCount; i++) {
+                        const rain = document.createElement('div');
+                        rain.className = 'rain';
+                        rain.style.left = Math.random() * 100 + '%';
+                        rain.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
+                        rain.style.animationDelay = Math.random() * 2 + 's';
+                        effectsContainer.appendChild(rain);
+                    }
+                    break;
+                    
+                case 'snow':
+                    const snowCount = intensity * 8;
+                    for (let i = 0; i < snowCount; i++) {
+                        const snow = document.createElement('div');
+                        snow.className = 'snow';
+                        snow.style.left = Math.random() * 100 + '%';
+                        snow.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                        snow.style.animationDelay = Math.random() * 3 + 's';
+                        effectsContainer.appendChild(snow);
+                    }
+                    break;
+            }
+        }
+
+        // 셰이딩 모드 선택
+        document.querySelectorAll('.shading-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const mode = option.dataset.shading;
+                state.shadingMode = mode;
+                
+                document.querySelectorAll('.shading-option').forEach(opt => {
+                    opt.classList.toggle('active', opt === option);
+                });
+                
+                document.getElementById('shadingText').textContent = mode === 'normal' ? '일반' : '툰';
+                document.body.classList.toggle('toon-shading', mode === 'toon');
+            });
+        });
+
+        // 낮/밤 사이클 업데이트
+        function updateDayNightCycle(timeValue) {
+            const skyBackground = document.getElementById('skyBackground');
+            const celestialBody = document.getElementById('celestialBody');
+            
+            let skyGradient, celestialClass, celestialPosition;
+            
+            if (timeValue < 0.25) {
+                const t = timeValue / 0.25;
+                skyGradient = `linear-gradient(180deg, 
+                    hsl(240, 30%, ${10 + t * 10}%) 0%, 
+                    hsl(220, 40%, ${15 + t * 15}%) 100%)`;
+                celestialClass = 'moon';
+                celestialPosition = { x: 20 + t * 30, y: 70 - t * 50 };
+            } else if (timeValue < 0.5) {
+                const t = (timeValue - 0.25) / 0.25;
+                skyGradient = `linear-gradient(180deg, 
+                    hsl(${210 + t * -10}, ${50 + t * 30}%, ${20 + t * 50}%) 0%, 
+                    hsl(${30 + t * 160}, ${70 + t * 20}%, ${50 + t * 40}%) 100%)`;
+                celestialClass = 'sun';
+                celestialPosition = { x: 20 + t * 30, y: 70 - t * 50 };
+            } else if (timeValue < 0.75) {
+                const t = (timeValue - 0.5) / 0.25;
+                skyGradient = `linear-gradient(180deg, 
+                    hsl(200, 80%, ${70 - t * 20}%) 0%, 
+                    hsl(${190 - t * 140}, 90%, ${90 - t * 40}%) 100%)`;
+                celestialClass = 'sun';
+                celestialPosition = { x: 50 + t * 30, y: 20 + t * 50 };
+            } else {
+                const t = (timeValue - 0.75) / 0.25;
+                skyGradient = `linear-gradient(180deg, 
+                    hsl(${20 - t * 20}, ${30 - t * 20}%, ${50 - t * 40}%) 0%, 
+                    hsl(${50 - t * 30}, ${50 - t * 30}%, ${50 - t * 35}%) 100%)`;
+                celestialClass = t < 0.5 ? 'sun' : 'moon';
+                celestialPosition = { x: 80 - t * 60, y: 70 - t * 50 };
+            }
+            
+            skyBackground.style.background = skyGradient;
+            celestialBody.className = celestialClass;
+            celestialBody.style.left = celestialPosition.x + '%';
+            celestialBody.style.top = celestialPosition.y + '%';
+        }
+
+        // 프리셋 저장 기능
+        function savePreset() {
+            const name = document.getElementById('presetName').value.trim();
+            if (!name) {
+                alert('프리셋 이름을 입력해주세요.');
+                return;
+            }
+            
+            const presets = JSON.parse(localStorage.getItem('scenePresets') || '{}');
+            presets[name] = { ...state };
+            localStorage.setItem('scenePresets', JSON.stringify(presets));
+            
+            document.getElementById('presetName').value = '';
+            loadPresets();
+        }
+
+        function loadPresets() {
+            const presets = JSON.parse(localStorage.getItem('scenePresets') || '{}');
+            const presetList = document.getElementById('presetList');
+            
+            presetList.innerHTML = '';
+            
+            if (Object.keys(presets).length === 0) {
+                presetList.innerHTML = '<div style="color: rgba(255,255,255,0.4); font-size: 13px; text-align: center; padding: 20px;">저장된 프리셋이 없습니다</div>';
+                return;
+            }
+            
+            Object.entries(presets).forEach(([name, preset]) => {
+                const item = document.createElement('div');
+                item.className = 'preset-item';
+                item.innerHTML = `
+                    <span style="color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 500;">${name}</span>
+                    <span style="color: rgba(255,100,100,0.8); cursor: pointer; font-size: 20px; padding: 4px;" onclick="deletePreset('${name}')">×</span>
+                `;
+                item.addEventListener('click', (e) => {
+                    if (!e.target.onclick) {
+                        loadPreset(name);
+                    }
+                });
+                presetList.appendChild(item);
+            });
+        }
+
+        function loadPreset(name) {
+            const presets = JSON.parse(localStorage.getItem('scenePresets') || '{}');
+            const preset = presets[name];
+            if (!preset) return;
+            
+            Object.assign(state, preset);
+            
+            // 필터 복원
+            const filterIndex = filters.findIndex(f => f.class === state.filter);
+            if (filterIndex !== -1) {
+                selectFilter(filterIndex);
+            }
+            
+            // 날씨 복원
+            selectWeather(state.weather);
+            document.querySelectorAll('.weather-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.weather === state.weather);
+            });
+            
+            // 셰이딩 복원
+            document.querySelectorAll('.shading-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.shading === state.shadingMode);
+            });
+            document.body.classList.toggle('toon-shading', state.shadingMode === 'toon');
+            
+            // 시간 복원
+            state.manualTime = true;
+            document.getElementById('todHandle').style.left = (state.timeOfDay * 100) + '%';
+            updateDayNightCycle(state.timeOfDay);
+            
+            // 드롭다운 닫기
+            sections.forEach(section => {
+                document.getElementById(`${section}Section`).classList.remove('active');
+                document.getElementById(`${section}Dropdown`).classList.remove('active');
+            });
+        }
+
+        function deletePreset(name) {
+            const presets = JSON.parse(localStorage.getItem('scenePresets') || '{}');
+            delete presets[name];
+            localStorage.setItem('scenePresets', JSON.stringify(presets));
+            loadPresets();
+        }
+
+        // 초기화
+        function init() {
+            createFilterDots();
+            selectFilter(0);
+            selectWeather('clear');
+            
+            document.querySelectorAll('.weather-option').forEach(option => {
+                if (option.dataset.weather !== 'clear') {
+                    option.querySelectorAll('.intensity-level').forEach((level, index) => {
+                        level.classList.toggle('active', index < 2);
+                    });
+                }
+            });
+            
+            updateClock();
+            adjustUIScale(); // 초기 스케일 조정
+        }
+
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
