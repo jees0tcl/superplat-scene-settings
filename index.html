@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="color-scheme" content="light only">
-    <title>SuperPlat 씬 설정 UI - 명도 보정 버전</title>
+    <title>SuperPlat Scene Settings Canvas</title>
     <style>
         * {
             margin: 0;
@@ -25,142 +24,21 @@
             overflow: hidden;
             position: fixed;
             touch-action: none;
-            background: #87CEEB;
+            background: white; /* Canvas 뒤의 기본 배경 */
         }
 
-        body {
-            position: relative;
-            transition: filter 0.6s ease;
-        }
-
-        /* 필터 효과들 */
-        body.filter-warm {
-            -webkit-filter: sepia(0.2) hue-rotate(-10deg) saturate(1.3) brightness(1.05);
-            filter: sepia(0.2) hue-rotate(-10deg) saturate(1.3) brightness(1.05);
-        }
-
-        body.filter-cold {
-            -webkit-filter: hue-rotate(180deg) saturate(0.9) brightness(1.05);
-            filter: hue-rotate(180deg) saturate(0.9) brightness(1.05);
-        }
-
-        body.filter-blackwhite {
-            -webkit-filter: grayscale(100%) contrast(1.2);
-            filter: grayscale(100%) contrast(1.2);
-        }
-
-        body.filter-ash {
-            -webkit-filter: grayscale(0.7) contrast(0.9) brightness(1.1);
-            filter: grayscale(0.7) contrast(0.9) brightness(1.1);
-        }
-
-        body.filter-noir {
-            -webkit-filter: grayscale(100%) contrast(1.5) brightness(0.9);
-            filter: grayscale(100%) contrast(1.5) brightness(0.9);
-        }
-
-        body.filter-sepia {
-            -webkit-filter: sepia(1) brightness(1.05);
-            filter: sepia(1) brightness(1.05);
-        }
-
-        body.filter-vintage {
-            -webkit-filter: sepia(0.4) contrast(1.2) brightness(1.1) saturate(1.2);
-            filter: sepia(0.4) contrast(1.2) brightness(1.1) saturate(1.2);
-        }
-
-        body.filter-nostalgia {
-            -webkit-filter: sepia(0.5) saturate(0.8) contrast(0.9) brightness(1.1);
-            filter: sepia(0.5) saturate(0.8) contrast(0.9) brightness(1.1);
-        }
-
-        body.filter-pastel {
-            -webkit-filter: saturate(0.5) brightness(1.2) contrast(0.8);
-            filter: saturate(0.5) brightness(1.2) contrast(0.8);
-        }
-
-        body.filter-vivid {
-            -webkit-filter: saturate(1.5) contrast(1.2);
-            filter: saturate(1.5) contrast(1.2);
-        }
-
-        body.filter-horror {
-            -webkit-filter: hue-rotate(180deg) saturate(2) contrast(1.5) brightness(0.8);
-            filter: hue-rotate(180deg) saturate(2) contrast(1.5) brightness(0.8);
-        }
-
-        body.filter-purple {
-            -webkit-filter: hue-rotate(270deg) saturate(1.5) brightness(1.05);
-            filter: hue-rotate(270deg) saturate(1.5) brightness(1.05);
-        }
-
-        body.filter-crimson {
-            -webkit-filter: hue-rotate(330deg) saturate(2) contrast(1.2);
-            filter: hue-rotate(330deg) saturate(2) contrast(1.2);
-        }
-
-        body.filter-blood {
-            -webkit-filter: hue-rotate(350deg) saturate(2.5) contrast(1.3) brightness(0.9);
-            filter: hue-rotate(350deg) saturate(2.5) contrast(1.3) brightness(0.9);
-        }
-
-        body.filter-glow {
-            -webkit-filter: brightness(1.2) contrast(1.1) blur(0.3px);
-            filter: brightness(1.2) contrast(1.1) blur(0.3px);
-        }
-
-        /* 동적 배경 */
-        #skyBackground {
+        /* 메인 캔버스 - 전체 화면 */
+        #gameCanvas {
             position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
-            transition: background 1s ease;
-            z-index: 0;
-        }
-
-        /* 낮/밤 배경 프리셋 */
-        .sky-dawn {
-            background: linear-gradient(180deg, #1A2A5E 0%, #4A5F7A 100%) !important;
-        }
-
-        .sky-morning {
-            background: linear-gradient(180deg, #FFB75E 0%, #87CEEB 100%) !important;
-        }
-
-        .sky-day {
-            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%) !important;
-        }
-
-        .sky-sunset {
-            background: linear-gradient(180deg, #FF6B6B 0%, #FFE66D 100%) !important;
-        }
-
-        .sky-night {
-            background: linear-gradient(180deg, #0C1445 0%, #1E3A5F 100%) !important;
-        }
-
-        /* 태양/달 */
-        #celestialBody {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            transition: all 1s ease;
+            /* Canvas는 이미지로 취급되므로 CSS 필터 영향 없음 */
             z-index: 1;
         }
 
-        .sun {
-            background: #FFD700;
-            box-shadow: 0 0 50px #FFD700, 0 0 100px #FFA500;
-        }
-
-        .moon {
-            background: #F0F0F0;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
-        }
-
-        /* UI 컨테이너 */
+        /* UI 컨테이너 - 원본과 동일한 구성 */
         #uiContainer {
             position: fixed;
             top: env(safe-area-inset-top, 20px);
@@ -172,7 +50,6 @@
             align-items: center;
             padding: 10px;
             --ui-width: 100%;
-            --ui-margin: 0px;
         }
 
         #uiWrapper {
@@ -182,7 +59,7 @@
             justify-content: center;
         }
 
-        /* 통합 UI 바 */
+        /* 통합 UI 바 - 원본과 동일 */
         #unifiedBar {
             display: flex;
             align-items: center;
@@ -299,225 +176,6 @@
             touch-action: none;
         }
 
-        /* 캐릭터 */
-        #character {
-            position: absolute;
-            left: 50%;
-            bottom: 15%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 300px;
-            z-index: 100;
-        }
-
-        .character-body {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #9C27B0, #673AB7);
-            border-radius: 20px 20px 10px 10px;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .toon-shading .character-body {
-            background: #9C27B0;
-            box-shadow: 
-                -10px 0 0 #7B1FA2,
-                0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 3px solid #4A148C;
-        }
-
-        .character-head {
-            position: absolute;
-            top: -25%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50%;
-            height: 33%;
-            background: #FFDBAC;
-            border-radius: 50%;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        /* 날씨 효과 */
-        .weather-effects {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-            overflow: hidden;
-        }
-
-        .rain {
-            position: absolute;
-            width: 2px;
-            height: 80px;
-            background: linear-gradient(transparent, rgba(174, 194, 224, 0.7));
-            animation: rain-fall linear infinite;
-        }
-
-        @keyframes rain-fall {
-            to { 
-                transform: translateY(calc(100vh + 100px)); 
-            }
-        }
-
-        .snow {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: white;
-            border-radius: 50%;
-            animation: snow-fall linear infinite;
-            opacity: 0.9;
-        }
-
-        @keyframes snow-fall {
-            to { 
-                transform: translateY(calc(100vh + 20px)) rotate(360deg); 
-            }
-        }
-
-        .cloud {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 100px;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-
-        .cloud.active {
-            opacity: 0.7;
-            animation: cloud-drift 20s linear infinite;
-        }
-
-        @keyframes cloud-drift {
-            from { transform: translateX(-200px); }
-            to { transform: translateX(calc(100vw + 200px)); }
-        }
-
-        /* 지면 */
-        #ground {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 20%;
-            background: linear-gradient(180deg, #8BC34A, #689F38);
-            z-index: 10;
-        }
-
-        .toon-shading #ground {
-            background: #8BC34A;
-            border-top: 5px solid #689F38;
-        }
-
-        /* ========================================
-           슬랙 WebView 전용 명도 보정 스타일
-           ======================================== */
-        
-        /* 전체 명도 보정 - 핵심 해결책 */
-        body.slack-webview {
-            /* 전체 화면 명도를 1.3배 증가, 대비도 1.1배 증가 */
-            filter: brightness(1.3) contrast(1.1) !important;
-            background-color: #FFFFFF !important; /* 명시적 배경색으로 블렌딩 방지 */
-        }
-        
-        /* Android 웹뷰 추가 보정 */
-        body.android-webview {
-            /* Android 특정 색상 보정 */
-            filter: brightness(1.35) contrast(1.15) saturate(1.1) !important;
-        }
-        
-        /* 슬랙에서 배경을 더 밝은 단색으로 */
-        body.slack-webview #skyBackground {
-            background: #A7DEEB !important; /* 기존 #87CEEB보다 20% 밝게 */
-            opacity: 1 !important;
-        }
-
-        body.slack-webview .sky-dawn {
-            background: #5A6F8A !important; /* 기존 #3A4F6A보다 밝게 */
-        }
-
-        body.slack-webview .sky-morning {
-            background: #FFD99A !important; /* 기존 #FFC97A보다 밝게 */
-        }
-
-        body.slack-webview .sky-day {
-            background: #A7DEEB !important; /* 기존 #87CEEB보다 밝게 */
-        }
-
-        body.slack-webview .sky-sunset {
-            background: #FFA585 !important; /* 기존 #FF8565보다 밝게 */
-        }
-
-        body.slack-webview .sky-night {
-            background: #3E5A7F !important; /* 기존 #1E3A5F보다 밝게 */
-        }
-
-        /* 슬랙에서 태양/달을 더 밝고 선명하게 */
-        body.slack-webview .sun {
-            background: #FFFF00 !important; /* 순수한 노란색 */
-            border: 3px solid #FFD700;
-            box-shadow: 0 0 20px rgba(255, 255, 0, 0.8);
-        }
-
-        body.slack-webview .moon {
-            background: #FFFFFF !important; /* 순수한 흰색 */
-            border: 3px solid #E0E0E0;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
-        }
-
-        /* 슬랙에서 캐릭터를 더 밝은 색으로 */
-        body.slack-webview .character-body {
-            background: #DA88E8 !important; /* 기존 #BA68C8보다 30% 밝게 */
-            border: 2px solid #BC47D0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        body.slack-webview .character-head {
-            background: #FFF5EC !important; /* 기존 #FFE5CC보다 밝게 */
-            border: 2px solid #FFEBD0;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-        }
-
-        /* 슬랙에서 지면을 더 밝게 */
-        body.slack-webview #ground {
-            background: #ABDA6A !important; /* 기존 #8BC34A보다 25% 밝게 */
-            border-top: 3px solid #89BF58;
-        }
-
-        /* 슬랙에서 비와 구름을 더 선명하게 */
-        body.slack-webview .rain {
-            background: #6FD3F7 !important; /* 더 밝은 파란색 */
-            width: 3px;
-            opacity: 0.9;
-        }
-
-        body.slack-webview .cloud {
-            background: #FFFFFF !important;
-            opacity: 0.95 !important;
-            border: 1px solid rgba(200, 200, 200, 0.3);
-        }
-
-        /* 하드웨어 가속 최적화로 렌더링 일관성 확보 */
-        body.slack-webview * {
-            transform: translateZ(0) !important;
-            -webkit-transform: translateZ(0) !important;
-            backface-visibility: hidden !important;
-            -webkit-backface-visibility: hidden !important;
-            perspective: 1000px !important;
-            -webkit-perspective: 1000px !important;
-        }
-
-        /* 색상 프로파일 강제 지정 */
-        body.slack-webview {
-            color-profile: sRGB !important;
-            rendering-intent: relative-colorimetric !important;
-            -webkit-font-smoothing: antialiased !important;
-            -moz-osx-font-smoothing: grayscale !important;
-        }
-
         /* 드롭다운 */
         .dropdown-content {
             position: fixed;
@@ -626,7 +284,7 @@
             box-shadow: 0 0 6px rgba(0, 229, 255, 0.5);
         }
 
-        /* 버튼들 */
+        /* 날씨 버튼들 */
         .weather-option,
         .shading-option {
             padding: 10px 14px;
@@ -754,130 +412,44 @@
             .digital-clock {
                 font-size: 16px;
             }
+        }
 
-            #character {
-                width: 150px;
-                height: 225px;
+        /* 슬랙 감지 알림 */
+        .slack-notice {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: none;
+            z-index: 2000;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
 
-        /* 브라우저에서 열기 버튼 */
-        #openInBrowserBtn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #00E5FF, #00ACC1);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
-            cursor: pointer;
-            z-index: 2000;
-            display: none;
-            text-decoration: none;
-            animation: pulse 2s infinite;
-        }
-
-        body.slack-webview #openInBrowserBtn {
+        body.slack-detected .slack-notice {
             display: block;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* 디버그 정보 */
-        .debug-info {
-            position: fixed;
-            bottom: 60px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 8px 12px;
-            font-size: 11px;
-            border-radius: 5px;
-            z-index: 9999;
-            max-width: 250px;
-            display: none; /* 기본적으로 숨김 */
-        }
-        
-        /* 밝기 조절 슬라이더 (슬랙 웹뷰 전용) */
-        .brightness-control {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            background: rgba(20, 20, 30, 0.95);
-            padding: 10px 15px;
-            border-radius: 20px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            z-index: 1999;
-        }
-        
-        body.slack-webview .brightness-control {
-            display: flex;
-        }
-        
-        .brightness-slider {
-            width: 100px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-            position: relative;
-            cursor: pointer;
-        }
-        
-        .brightness-handle {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            background: #00E5FF;
-            border-radius: 50%;
-            top: 50%;
-            left: 30%; /* 기본값 1.3 (0~100% 범위에서 30%) */
-            transform: translate(-50%, -50%);
-            cursor: grab;
-        }
-        
-        .brightness-label {
-            color: #FFFFFF;
-            font-size: 12px;
-            min-width: 30px;
-            text-align: center;
         }
     </style>
 </head>
 <body>
-    <!-- 동적 배경 -->
-    <div id="skyBackground"></div>
+    <!-- 메인 캔버스 -->
+    <canvas id="gameCanvas"></canvas>
     
-    <!-- 태양/달 -->
-    <div id="celestialBody" class="sun"></div>
-    
-    <!-- 날씨 효과 컨테이너 -->
-    <div class="weather-effects" id="weatherEffects"></div>
-    
-    <!-- 구름들 -->
-    <div class="cloud" id="cloud1" style="width: 200px; height: 60px; top: 20%; left: 10%;"></div>
-    <div class="cloud" id="cloud2" style="width: 150px; height: 50px; top: 30%; left: 60%;"></div>
-    <div class="cloud" id="cloud3" style="width: 180px; height: 55px; top: 25%; left: 35%;"></div>
-    
-    <!-- 캐릭터 -->
-    <div id="character">
-        <div class="character-body">
-            <div class="character-head"></div>
-        </div>
-    </div>
-    
-    <!-- 지면 -->
-    <div id="ground"></div>
-    
-    <!-- UI 컨테이너 -->
+    <!-- UI 컨테이너 - 원본과 동일한 구성 -->
     <div id="uiContainer">
         <div id="uiWrapper">
             <!-- 통합 UI 바 -->
@@ -993,25 +565,17 @@
         </div>
     </div>
 
-    <!-- 브라우저에서 열기 버튼 -->
-    <a id="openInBrowserBtn" href="#" target="_blank">
-        🌐 브라우저에서 열기
-    </a>
-    
-    <!-- 밝기 조절 슬라이더 (슬랙 웹뷰 전용) -->
-    <div class="brightness-control" id="brightnessControl">
-        <span style="color: #FFFFFF; font-size: 12px;">☀️</span>
-        <div class="brightness-slider" id="brightnessSlider">
-            <div class="brightness-handle" id="brightnessHandle"></div>
-        </div>
-        <span class="brightness-label" id="brightnessValue">1.3</span>
+    <!-- 슬랙 감지 알림 -->
+    <div class="slack-notice">
+        ✨ Canvas 모드 - 슬랙 필터 우회 성공!
     </div>
 
-    <!-- 디버그 정보 -->
-    <div class="debug-info" id="debugInfo"></div>
-
     <script>
-        // 필터 정의
+        // ========================================
+        // 전역 상태 관리 - 원본과 동일한 구조
+        // ========================================
+        
+        // 필터 정의 - 원본의 16개 필터
         const filters = [
             { name: '기본', class: 'none' },
             { name: '따뜻함', class: 'warm' },
@@ -1032,197 +596,733 @@
         ];
 
         let currentFilterIndex = 0;
-        let currentBrightness = 1.3; // 슬랙 웹뷰 기본 밝기
 
+        // 상태 관리 객체
         const state = {
             filter: 'none',
             weather: 'clear',
             weatherIntensity: 2,
             timeOfDay: 0.5,
             shadingMode: 'normal',
-            manualTime: false
+            manualTime: false,
+            
+            // Canvas 애니메이션용 추가 상태
+            sunX: 0,
+            sunY: 0,
+            cloudOffset: 0,
+            raindrops: [],
+            snowflakes: [],
+            
+            // 색상 팔레트
+            colors: {
+                skyTop: { r: 135, g: 206, b: 235 },
+                skyBottom: { r: 224, g: 246, b: 255 },
+                ground: { r: 144, g: 238, b: 144 },
+                groundDark: { r: 124, g: 205, b: 124 },
+                character: { r: 255, g: 149, b: 128 },
+                characterShadow: { r: 255, g: 127, b: 80 },
+                characterHead: { r: 255, g: 235, b: 205 },
+                sun: { r: 255, g: 223, b: 0 },
+                moon: { r: 248, g: 248, b: 255 }
+            }
         };
 
-        // WebView 감지 및 명도 보정 적용 - 핵심 함수
-        function detectAndApplyWebViewFixes() {
-            const userAgent = navigator.userAgent.toLowerCase();
+        // ========================================
+        // Canvas 초기화
+        // ========================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
             
-            // 슬랙 WebView 감지
-            const isSlackWebView = /slack/i.test(userAgent);
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
             
-            // Android 감지
-            const isAndroid = /android/i.test(userAgent);
+            ctx.scale(dpr, dpr);
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // ========================================
+        // 슬랙 감지
+        // ========================================
+        function detectSlackWebView() {
+            const ua = navigator.userAgent.toLowerCase();
+            const isSlack = ua.includes('slack') || 
+                           document.referrer.includes('slack');
             
-            // 일반 WebView 감지
-            const isGeneralWebView = /kakaotalk|fbav|fb_iab|instagram|line|twitter/i.test(userAgent) ||
-                                     /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(userAgent) ||
-                                     /android.*wv/i.test(userAgent);
-            
-            if (isSlackWebView) {
-                console.log('슬랙 WebView 감지 - 명도 보정 모드 적용');
-                document.body.classList.add('slack-webview');
+            if (isSlack) {
+                console.log('🎨 슬랙 웹뷰 감지 - Canvas 렌더링으로 필터 우회');
+                document.body.classList.add('slack-detected');
                 
-                // Android 슬랙인 경우 추가 보정
-                if (isAndroid) {
-                    console.log('Android 슬랙 감지 - 추가 보정 적용');
-                    document.body.classList.add('android-webview');
+                // 슬랙에서는 더 밝은 색상 사용
+                state.colors.skyTop = { r: 160, g: 220, b: 250 };
+                state.colors.ground = { r: 170, g: 255, b: 170 };
+                
+                // 3초 후 알림 숨기기
+                setTimeout(() => {
+                    const notice = document.querySelector('.slack-notice');
+                    if (notice) {
+                        notice.style.display = 'none';
+                    }
+                }, 3000);
+                
+                return true;
+            }
+            return false;
+        }
+
+        // ========================================
+        // 향상된 필터 효과 시스템
+        // ========================================
+        
+        /**
+         * 모든 색상에 필터를 적용하는 범용 함수
+         * 각 필터는 고유한 색상 변환 로직을 가지고 있습니다
+         */
+        function applyFilterToColor(color) {
+            const filter = filters[currentFilterIndex].class;
+            
+            // 원본 색상 복사
+            let filtered = { r: color.r, g: color.g, b: color.b };
+            
+            switch(filter) {
+                case 'none':
+                    // 기본 - 변경 없음
+                    break;
+                    
+                case 'warm':
+                    // 따뜻함 - 빨강과 노랑 증가, 파랑 감소
+                    filtered.r = Math.min(255, color.r * 1.3);
+                    filtered.g = Math.min(255, color.g * 1.1);
+                    filtered.b = color.b * 0.7;
+                    break;
+                    
+                case 'cold':
+                    // 차가움 - 파랑 증가, 빨강 감소
+                    filtered.r = color.r * 0.7;
+                    filtered.g = color.g * 0.95;
+                    filtered.b = Math.min(255, color.b * 1.4);
+                    break;
+                    
+                case 'blackwhite':
+                    // 흑백 - 그레이스케일 변환
+                    const gray = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
+                    filtered.r = filtered.g = filtered.b = gray;
+                    break;
+                    
+                case 'ash':
+                    // 애쉬 - 채도를 낮춘 회색빛
+                    const ashGray = (color.r + color.g + color.b) / 3;
+                    filtered.r = color.r * 0.5 + ashGray * 0.5;
+                    filtered.g = color.g * 0.5 + ashGray * 0.5;
+                    filtered.b = color.b * 0.5 + ashGray * 0.5;
+                    break;
+                    
+                case 'noir':
+                    // 느와르 - 높은 대비의 흑백
+                    const noirGray = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
+                    const contrast = 1.5;
+                    const noirValue = ((noirGray / 255 - 0.5) * contrast + 0.5) * 255;
+                    filtered.r = filtered.g = filtered.b = Math.max(0, Math.min(255, noirValue));
+                    break;
+                    
+                case 'sepia':
+                    // 세피아 - 갈색빛 빈티지
+                    const tr = 0.393 * color.r + 0.769 * color.g + 0.189 * color.b;
+                    const tg = 0.349 * color.r + 0.686 * color.g + 0.168 * color.b;
+                    const tb = 0.272 * color.r + 0.534 * color.g + 0.131 * color.b;
+                    filtered.r = Math.min(255, tr);
+                    filtered.g = Math.min(255, tg);
+                    filtered.b = Math.min(255, tb);
+                    break;
+                    
+                case 'vintage':
+                    // 빈티지 - 바랜 듯한 색감
+                    filtered.r = Math.min(255, color.r * 1.1);
+                    filtered.g = Math.min(255, color.g * 0.95);
+                    filtered.b = color.b * 0.8;
+                    // 약간의 노이즈 효과
+                    filtered.r = Math.min(255, filtered.r + Math.random() * 10);
+                    filtered.g = Math.min(255, filtered.g + Math.random() * 10);
+                    filtered.b = Math.min(255, filtered.b + Math.random() * 10);
+                    break;
+                    
+                case 'nostalgia':
+                    // 노스텔지어 - 부드러운 옛날 사진 느낌
+                    filtered.r = Math.min(255, color.r * 1.05 + 20);
+                    filtered.g = Math.min(255, color.g * 0.9 + 15);
+                    filtered.b = Math.min(255, color.b * 0.7 + 10);
+                    // 밝기 증가
+                    filtered.r = Math.min(255, filtered.r * 1.1);
+                    filtered.g = Math.min(255, filtered.g * 1.1);
+                    filtered.b = Math.min(255, filtered.b * 1.1);
+                    break;
+                    
+                case 'pastel':
+                    // 파스텔 - 부드럽고 밝은 색조
+                    filtered.r = Math.min(255, color.r * 0.6 + 100);
+                    filtered.g = Math.min(255, color.g * 0.6 + 100);
+                    filtered.b = Math.min(255, color.b * 0.6 + 100);
+                    break;
+                    
+                case 'vivid':
+                    // 선명하게 - 채도와 대비 증가
+                    const vividFactor = 1.5;
+                    const avg = (color.r + color.g + color.b) / 3;
+                    filtered.r = Math.min(255, Math.max(0, avg + (color.r - avg) * vividFactor));
+                    filtered.g = Math.min(255, Math.max(0, avg + (color.g - avg) * vividFactor));
+                    filtered.b = Math.min(255, Math.max(0, avg + (color.b - avg) * vividFactor));
+                    break;
+                    
+                case 'horror':
+                    // 호러 - 어둡고 불길한 분위기
+                    filtered.r = Math.min(255, color.r * 0.7 + 30);
+                    filtered.g = color.g * 0.3;
+                    filtered.b = color.b * 0.4;
+                    // 어둡게 처리
+                    filtered.r *= 0.8;
+                    filtered.g *= 0.8;
+                    filtered.b *= 0.8;
+                    break;
+                    
+                case 'purple':
+                    // 퍼플 - 보라색 톤
+                    filtered.r = Math.min(255, color.r * 0.8 + 50);
+                    filtered.g = color.g * 0.6;
+                    filtered.b = Math.min(255, color.b * 1.2 + 60);
+                    break;
+                    
+                case 'crimson':
+                    // 크림슨 - 진한 붉은색
+                    filtered.r = Math.min(255, color.r * 1.4 + 40);
+                    filtered.g = color.g * 0.4;
+                    filtered.b = color.b * 0.5;
+                    break;
+                    
+                case 'blood':
+                    // 블러드 - 강렬한 붉은색
+                    filtered.r = Math.min(255, color.r * 1.5 + 60);
+                    filtered.g = color.g * 0.3;
+                    filtered.b = color.b * 0.3;
+                    // 대비 증가
+                    if (filtered.r > 128) {
+                        filtered.r = Math.min(255, filtered.r * 1.2);
+                    }
+                    break;
+                    
+                case 'glow':
+                    // 광휘 - 밝고 빛나는 효과
+                    filtered.r = Math.min(255, color.r * 1.2 + 30);
+                    filtered.g = Math.min(255, color.g * 1.2 + 30);
+                    filtered.b = Math.min(255, color.b * 1.2 + 30);
+                    // 하이라이트 효과
+                    const brightness = (filtered.r + filtered.g + filtered.b) / 3;
+                    if (brightness > 150) {
+                        filtered.r = Math.min(255, filtered.r * 1.1);
+                        filtered.g = Math.min(255, filtered.g * 1.1);
+                        filtered.b = Math.min(255, filtered.b * 1.1);
+                    }
+                    break;
+            }
+            
+            return filtered;
+        }
+
+        /**
+         * RGBA 문자열에 필터를 적용하는 헬퍼 함수
+         */
+        function applyFilterToRGBA(rgbaString, alpha = 1) {
+            // rgba(r, g, b, a) 형식 파싱
+            const match = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (match) {
+                const color = {
+                    r: parseInt(match[1]),
+                    g: parseInt(match[2]),
+                    b: parseInt(match[3])
+                };
+                const filtered = applyFilterToColor(color);
+                return `rgba(${Math.floor(filtered.r)}, ${Math.floor(filtered.g)}, ${Math.floor(filtered.b)}, ${alpha})`;
+            }
+            return rgbaString;
+        }
+
+        // ========================================
+        // Canvas 렌더링 함수들 - 필터 적용 포함
+        // ========================================
+        
+        // 하늘 그리기
+        function drawSky() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            // 시간에 따른 하늘색 계산
+            let topColor, bottomColor;
+            
+            if (state.timeOfDay < 0.25) {
+                // 밤
+                topColor = { r: 72, g: 88, b: 148 };
+                bottomColor = { r: 96, g: 116, b: 168 };
+            } else if (state.timeOfDay < 0.35) {
+                // 새벽
+                topColor = { r: 106, g: 130, b: 198 };
+                bottomColor = { r: 156, g: 176, b: 216 };
+            } else if (state.timeOfDay < 0.5) {
+                // 아침
+                topColor = { r: 255, g: 203, b: 124 };
+                bottomColor = { r: 135, g: 206, b: 235 };
+            } else if (state.timeOfDay < 0.7) {
+                // 낮
+                topColor = state.colors.skyTop;
+                bottomColor = state.colors.skyBottom;
+            } else if (state.timeOfDay < 0.85) {
+                // 저녁
+                topColor = { r: 255, g: 167, b: 128 };
+                bottomColor = { r: 255, g: 230, b: 140 };
+            } else {
+                // 밤
+                topColor = { r: 72, g: 88, b: 148 };
+                bottomColor = { r: 96, g: 116, b: 168 };
+            }
+            
+            // 필터 효과 적용
+            const filteredTop = applyFilterToColor(topColor);
+            const filteredBottom = applyFilterToColor(bottomColor);
+            
+            // 그라디언트 생성
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, `rgb(${Math.floor(filteredTop.r)}, ${Math.floor(filteredTop.g)}, ${Math.floor(filteredTop.b)})`);
+            gradient.addColorStop(1, `rgb(${Math.floor(filteredBottom.r)}, ${Math.floor(filteredBottom.g)}, ${Math.floor(filteredBottom.b)})`);
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+        }
+
+        // 태양/달 그리기
+        function drawCelestialBody() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            // 시간에 따른 위치 계산
+            const t = state.timeOfDay;
+            const x = width * t;
+            const y = height * 0.3 + Math.sin(t * Math.PI) * -height * 0.25;
+            
+            if (state.timeOfDay > 0.25 && state.timeOfDay < 0.75) {
+                // 태양
+                const sunColor = applyFilterToColor(state.colors.sun);
+                
+                // 광선 효과 (회전 애니메이션)
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(Date.now() / 1000);
+                
+                const rayColor = applyFilterToColor({ r: 255, g: 223, b: 0 });
+                ctx.strokeStyle = `rgba(${Math.floor(rayColor.r)}, ${Math.floor(rayColor.g)}, ${Math.floor(rayColor.b)}, 0.3)`;
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2;
+                    ctx.beginPath();
+                    ctx.moveTo(Math.cos(angle) * 50, Math.sin(angle) * 50);
+                    ctx.lineTo(Math.cos(angle) * 70, Math.sin(angle) * 70);
+                    ctx.stroke();
+                }
+                ctx.restore();
+                
+                // 태양 본체
+                ctx.fillStyle = `rgb(${Math.floor(sunColor.r)}, ${Math.floor(sunColor.g)}, ${Math.floor(sunColor.b)})`;
+                ctx.beginPath();
+                ctx.arc(x, y, 40, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // 달
+                const moonColor = applyFilterToColor(state.colors.moon);
+                ctx.fillStyle = `rgb(${Math.floor(moonColor.r)}, ${Math.floor(moonColor.g)}, ${Math.floor(moonColor.b)})`;
+                ctx.beginPath();
+                ctx.arc(x, y, 35, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 달 크레이터
+                const craterColor = applyFilterToColor({ r: 200, g: 200, b: 200 });
+                ctx.fillStyle = `rgba(${Math.floor(craterColor.r)}, ${Math.floor(craterColor.g)}, ${Math.floor(craterColor.b)}, 0.3)`;
+                ctx.beginPath();
+                ctx.arc(x - 10, y - 5, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 구름 그리기 - 개선된 입체적 구름
+        function drawClouds() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            state.cloudOffset = (state.cloudOffset + 0.3) % width;
+            
+            if (state.weather === 'cloudy' || state.weather === 'rain' || state.weather === 'snow') {
+                // 날씨별 구름 밀도와 색상 조정
+                const baseOpacity = state.weather === 'rain' ? 0.7 : (state.weather === 'snow' ? 0.6 : 0.5);
+                const cloudDensity = state.weather === 'clear' ? 0 : (1 + state.weatherIntensity) * 2;
+                
+                for (let i = 0; i < cloudDensity; i++) {
+                    const x = (state.cloudOffset + i * 250) % (width + 400) - 200;
+                    const y = 30 + i * 50 + Math.sin(Date.now() / 3000 + i) * 10;
+                    const scale = 0.8 + (i % 2) * 0.4;
+                    
+                    // 구름 그림자 (더 어두운 아래쪽)
+                    ctx.save();
+                    
+                    // 구름 본체 - 여러 겹의 원으로 입체감 표현
+                    const cloudBase = applyFilterToColor({ r: 180, g: 180, b: 190 });
+                    const cloudLight = applyFilterToColor({ r: 255, g: 255, b: 255 });
+                    const cloudMid = applyFilterToColor({ r: 220, g: 220, b: 230 });
+                    
+                    // 구름 그림자층 (가장 아래)
+                    ctx.fillStyle = `rgba(${Math.floor(cloudBase.r)}, ${Math.floor(cloudBase.g)}, ${Math.floor(cloudBase.b)}, ${baseOpacity * 0.6})`;
+                    
+                    // 그림자 부분
+                    ctx.beginPath();
+                    ctx.ellipse(x + 5, y + 10, 40 * scale, 25 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 30, y + 10, 45 * scale, 28 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 55, y + 10, 40 * scale, 25 * scale, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 중간층
+                    ctx.fillStyle = `rgba(${Math.floor(cloudMid.r)}, ${Math.floor(cloudMid.g)}, ${Math.floor(cloudMid.b)}, ${baseOpacity * 0.8})`;
+                    ctx.beginPath();
+                    ctx.ellipse(x, y, 42 * scale, 30 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 28, y - 2, 48 * scale, 32 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 52, y, 42 * scale, 30 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 15, y + 5, 35 * scale, 25 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 40, y + 5, 35 * scale, 25 * scale, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // 하이라이트층 (가장 위)
+                    ctx.fillStyle = `rgba(${Math.floor(cloudLight.r)}, ${Math.floor(cloudLight.g)}, ${Math.floor(cloudLight.b)}, ${baseOpacity * 0.5})`;
+                    ctx.beginPath();
+                    ctx.ellipse(x + 10, y - 10, 30 * scale, 20 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 30, y - 12, 35 * scale, 22 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 45, y - 8, 28 * scale, 18 * scale, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.restore();
+                }
+            }
+        }
+
+        // 지면 그리기
+        function drawGround() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const groundHeight = height * 0.2;
+            
+            // 지면 색상에 필터 적용
+            const groundColor = applyFilterToColor(state.colors.ground);
+            const groundDarkColor = applyFilterToColor(state.colors.groundDark);
+            
+            // 툰 셰이딩 모드
+            if (state.shadingMode === 'toon') {
+                // 단색 + 테두리
+                ctx.fillStyle = `rgb(${Math.floor(groundColor.r)}, ${Math.floor(groundColor.g)}, ${Math.floor(groundColor.b)})`;
+                ctx.fillRect(0, height - groundHeight, width, groundHeight);
+                
+                ctx.strokeStyle = `rgb(${Math.floor(groundDarkColor.r)}, ${Math.floor(groundDarkColor.g)}, ${Math.floor(groundDarkColor.b)})`;
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(0, height - groundHeight);
+                ctx.lineTo(width, height - groundHeight);
+                ctx.stroke();
+            } else {
+                // 그라디언트
+                const gradient = ctx.createLinearGradient(0, height - groundHeight, 0, height);
+                gradient.addColorStop(0, `rgb(${Math.floor(groundColor.r)}, ${Math.floor(groundColor.g)}, ${Math.floor(groundColor.b)})`);
+                gradient.addColorStop(1, `rgb(${Math.floor(groundDarkColor.r)}, ${Math.floor(groundDarkColor.g)}, ${Math.floor(groundDarkColor.b)})`);
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, height - groundHeight, width, groundHeight);
+            }
+            
+            // 지면 디테일 추가 (풀, 돌 등)
+            if (state.shadingMode === 'normal') {
+                const grassColor = applyFilterToColor({ r: 100, g: 200, b: 100 });
+                ctx.strokeStyle = `rgba(${Math.floor(grassColor.r)}, ${Math.floor(grassColor.g)}, ${Math.floor(grassColor.b)}, 0.3)`;
+                ctx.lineWidth = 2;
+                
+                for (let i = 0; i < 20; i++) {
+                    const x = Math.random() * width;
+                    const y = height - groundHeight + Math.random() * groundHeight;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x - 3, y - 10);
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x + 3, y - 10);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // 캐릭터 그리기
+        function drawCharacter() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            const charWidth = 100;
+            const charHeight = 150;
+            const charX = width / 2 - charWidth / 2;
+            const charY = height * 0.8 - charHeight;
+            
+            // 캐릭터 색상에 필터 적용
+            const charColor = applyFilterToColor(state.colors.character);
+            const shadowColor = applyFilterToColor(state.colors.characterShadow);
+            const headColor = applyFilterToColor(state.colors.characterHead);
+            
+            if (state.shadingMode === 'toon') {
+                // 툰 셰이딩 - 그림자 효과
+                ctx.fillStyle = `rgb(${Math.floor(shadowColor.r)}, ${Math.floor(shadowColor.g)}, ${Math.floor(shadowColor.b)})`;
+                ctx.fillRect(charX - 10, charY + 50, charWidth, charHeight - 50);
+                
+                // 몸통
+                ctx.fillStyle = `rgb(${Math.floor(charColor.r)}, ${Math.floor(charColor.g)}, ${Math.floor(charColor.b)})`;
+                ctx.fillRect(charX, charY + 50, charWidth, charHeight - 50);
+                
+                // 테두리
+                const outlineColor = applyFilterToColor({ 
+                    r: Math.floor(state.colors.character.r * 0.7), 
+                    g: Math.floor(state.colors.character.g * 0.7), 
+                    b: Math.floor(state.colors.character.b * 0.7) 
+                });
+                ctx.strokeStyle = `rgb(${Math.floor(outlineColor.r)}, ${Math.floor(outlineColor.g)}, ${Math.floor(outlineColor.b)})`;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(charX, charY + 50, charWidth, charHeight - 50);
+            } else {
+                // 일반 렌더링 - 그라디언트
+                const bodyGradient = ctx.createLinearGradient(charX, charY + 50, charX, charY + charHeight);
+                bodyGradient.addColorStop(0, `rgb(${Math.floor(charColor.r)}, ${Math.floor(charColor.g)}, ${Math.floor(charColor.b)})`);
+                bodyGradient.addColorStop(1, `rgb(${Math.floor(shadowColor.r)}, ${Math.floor(shadowColor.g)}, ${Math.floor(shadowColor.b)})`);
+                
+                ctx.fillStyle = bodyGradient;
+                ctx.fillRect(charX, charY + 50, charWidth, charHeight - 50);
+            }
+            
+            // 머리
+            ctx.fillStyle = `rgb(${Math.floor(headColor.r)}, ${Math.floor(headColor.g)}, ${Math.floor(headColor.b)})`;
+            ctx.beginPath();
+            ctx.arc(charX + charWidth / 2, charY + 40, 40, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 얼굴 특징들에도 필터 적용
+            const eyeColor = applyFilterToColor({ r: 0, g: 0, b: 0 });
+            ctx.fillStyle = `rgb(${Math.floor(eyeColor.r)}, ${Math.floor(eyeColor.g)}, ${Math.floor(eyeColor.b)})`;
+            
+            // 눈
+            ctx.beginPath();
+            ctx.arc(charX + charWidth / 2 - 15, charY + 35, 5, 0, Math.PI * 2);
+            ctx.arc(charX + charWidth / 2 + 15, charY + 35, 5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 미소
+            ctx.strokeStyle = `rgb(${Math.floor(eyeColor.r)}, ${Math.floor(eyeColor.g)}, ${Math.floor(eyeColor.b)})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(charX + charWidth / 2, charY + 45, 15, 0, Math.PI);
+            ctx.stroke();
+            
+            // 캐릭터 그림자 (지면에)
+            const groundShadowColor = applyFilterToColor({ r: 50, g: 50, b: 50 });
+            ctx.fillStyle = `rgba(${Math.floor(groundShadowColor.r)}, ${Math.floor(groundShadowColor.g)}, ${Math.floor(groundShadowColor.b)}, 0.3)`;
+            ctx.beginPath();
+            ctx.ellipse(charX + charWidth / 2, charY + charHeight, charWidth / 2, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 날씨 효과 그리기 - 개선된 비와 눈 효과
+        function drawWeatherEffects() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            if (state.weather === 'rain') {
+                // 비 효과 - 강도에 따라 빗방울 수 조절
+                const maxDrops = state.weatherIntensity * 20;
+                
+                // 배경 밝기에 따라 비 색상 조정
+                const isDayTime = state.timeOfDay > 0.25 && state.timeOfDay < 0.75;
+                let rainColor;
+                
+                if (isDayTime) {
+                    // 낮에는 더 어두운 색상과 높은 투명도로 대비 증가
+                    rainColor = applyFilterToColor({ r: 100, g: 120, b: 150 });
+                    ctx.strokeStyle = `rgba(${Math.floor(rainColor.r)}, ${Math.floor(rainColor.g)}, ${Math.floor(rainColor.b)}, 0.7)`;
+                    ctx.lineWidth = 2.5;
+                } else {
+                    // 밤에는 밝은 색상
+                    rainColor = applyFilterToColor({ r: 200, g: 220, b: 240 });
+                    ctx.strokeStyle = `rgba(${Math.floor(rainColor.r)}, ${Math.floor(rainColor.g)}, ${Math.floor(rainColor.b)}, 0.6)`;
+                    ctx.lineWidth = 2;
                 }
                 
-                // 명시적 배경색 설정으로 블렌딩 문제 방지
-                document.body.style.backgroundColor = '#FFFFFF';
+                // 비 바람 효과를 위한 각도
+                const windAngle = Math.sin(Date.now() / 2000) * 0.1;
                 
-                // 메타 태그로 색상 공간 강제
-                const metaColorGamut = document.createElement('meta');
-                metaColorGamut.name = 'viewport';
-                metaColorGamut.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, color-gamut=srgb';
-                
-                // 기존 viewport 메타 태그 교체
-                const existingViewport = document.querySelector('meta[name="viewport"]');
-                if (existingViewport) {
-                    existingViewport.remove();
-                }
-                document.head.appendChild(metaColorGamut);
-                
-                // Android 웹뷰 특정 CSS 속성 설정
-                if (isAndroid) {
-                    document.documentElement.style.setProperty('--webkit-text-size-adjust', '100%');
-                    document.documentElement.style.setProperty('text-size-adjust', '100%');
-                    document.documentElement.style.setProperty('--webkit-font-smoothing', 'antialiased');
-                }
-                
-                // 브라우저에서 열기 버튼 표시
-                const openBtn = document.getElementById('openInBrowserBtn');
-                if (openBtn) {
-                    openBtn.href = window.location.href;
-                    openBtn.style.display = 'block';
-                    openBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        // 슬랙에서 외부 브라우저로 열기
-                        window.open(window.location.href, '_blank');
+                if (state.raindrops.length < maxDrops) {
+                    state.raindrops.push({
+                        x: Math.random() * (width + 100) - 50,
+                        y: -10,
+                        speed: 12 + Math.random() * 8 + state.weatherIntensity * 3,
+                        length: 15 + Math.random() * 10 + state.weatherIntensity * 5,
+                        opacity: 0.4 + Math.random() * 0.4
                     });
                 }
                 
-                // 밝기 조절 슬라이더 설정
-                setupBrightnessControl();
+                state.raindrops = state.raindrops.filter(drop => {
+                    drop.y += drop.speed;
+                    drop.x += drop.speed * windAngle;
+                    
+                    // 개별 빗방울 투명도 적용
+                    const dropOpacity = isDayTime ? drop.opacity * 1.2 : drop.opacity;
+                    ctx.save();
+                    ctx.globalAlpha = dropOpacity;
+                    
+                    // 빗줄기 그리기 (각도 적용)
+                    ctx.beginPath();
+                    ctx.moveTo(drop.x, drop.y);
+                    ctx.lineTo(drop.x + drop.length * windAngle, drop.y + drop.length);
+                    ctx.stroke();
+                    
+                    // 굵은 비 표현 (강도가 높을 때)
+                    if (state.weatherIntensity > 2) {
+                        ctx.lineWidth = isDayTime ? 3 : 2.5;
+                        ctx.globalAlpha = dropOpacity * 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(drop.x + 2, drop.y);
+                        ctx.lineTo(drop.x + 2 + drop.length * windAngle, drop.y + drop.length);
+                        ctx.stroke();
+                    }
+                    
+                    ctx.restore();
+                    
+                    // 물웅덩이 효과 (지면 근처)
+                    if (drop.y > height - 60) {
+                        const splashColor = isDayTime 
+                            ? applyFilterToColor({ r: 80, g: 100, b: 120 })
+                            : applyFilterToColor({ r: 174, g: 214, b: 241 });
+                        
+                        ctx.fillStyle = `rgba(${Math.floor(splashColor.r)}, ${Math.floor(splashColor.g)}, ${Math.floor(splashColor.b)}, ${0.3 * dropOpacity})`;
+                        
+                        // 물결 효과
+                        ctx.beginPath();
+                        ctx.ellipse(drop.x, height - 40, 8, 3, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // 튀는 물방울
+                        if (Math.random() < 0.3) {
+                            ctx.beginPath();
+                            ctx.arc(drop.x + Math.random() * 10 - 5, height - 45, 2, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                    
+                    return drop.y < height;
+                });
                 
-            } else if (isGeneralWebView) {
-                console.log('일반 WebView 감지');
-                document.body.classList.add('general-webview');
-            }
-            
-            // 디버그 정보 업데이트 (필요시 활성화)
-            const debugEl = document.getElementById('debugInfo');
-            if (debugEl && window.location.search.includes('debug=true')) {
-                debugEl.style.display = 'block';
-                debugEl.innerHTML = `
-                    UA: ${userAgent.substring(0, 100)}...<br>
-                    슬랙: ${isSlackWebView ? 'Yes' : 'No'}<br>
-                    Android: ${isAndroid ? 'Yes' : 'No'}<br>
-                    WebView: ${isGeneralWebView ? 'Yes' : 'No'}<br>
-                    밝기: ${currentBrightness}
-                `;
+                // 전체 화면 습기 효과 (안개)
+                if (state.weatherIntensity > 2) {
+                    const mistColor = isDayTime 
+                        ? applyFilterToColor({ r: 150, g: 160, b: 170 })
+                        : applyFilterToColor({ r: 200, g: 210, b: 220 });
+                    
+                    ctx.fillStyle = `rgba(${Math.floor(mistColor.r)}, ${Math.floor(mistColor.g)}, ${Math.floor(mistColor.b)}, ${0.05 * state.weatherIntensity})`;
+                    ctx.fillRect(0, height * 0.7, width, height * 0.3);
+                }
+                
+            } else if (state.weather === 'snow') {
+                // 눈 효과 - 강도에 따라 눈송이 수 조절
+                const maxFlakes = state.weatherIntensity * 15;
+                
+                const snowColor = applyFilterToColor({ r: 255, g: 255, b: 255 });
+                
+                if (state.snowflakes.length < maxFlakes) {
+                    state.snowflakes.push({
+                        x: Math.random() * width,
+                        y: -10,
+                        size: 2 + Math.random() * 4 + state.weatherIntensity,
+                        speed: 0.5 + Math.random() * 1.5,
+                        drift: Math.random() * 2 - 1,
+                        rotation: Math.random() * Math.PI * 2,
+                        rotSpeed: (Math.random() - 0.5) * 0.05
+                    });
+                }
+                
+                state.snowflakes = state.snowflakes.filter(flake => {
+                    flake.y += flake.speed;
+                    flake.x += flake.drift + Math.sin(Date.now() / 1000 + flake.rotation) * 0.5;
+                    flake.rotation += flake.rotSpeed;
+                    
+                    // 눈송이 그리기 (별 모양)
+                    ctx.save();
+                    ctx.translate(flake.x, flake.y);
+                    ctx.rotate(flake.rotation);
+                    
+                    ctx.fillStyle = `rgba(${Math.floor(snowColor.r)}, ${Math.floor(snowColor.g)}, ${Math.floor(snowColor.b)}, 0.9)`;
+                    ctx.strokeStyle = `rgba(${Math.floor(snowColor.r)}, ${Math.floor(snowColor.g)}, ${Math.floor(snowColor.b)}, 0.3)`;
+                    ctx.lineWidth = 1;
+                    
+                    // 6각 눈송이
+                    for (let i = 0; i < 6; i++) {
+                        ctx.save();
+                        ctx.rotate((Math.PI / 3) * i);
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(0, -flake.size);
+                        ctx.stroke();
+                        
+                        // 작은 가지
+                        if (flake.size > 4) {
+                            ctx.beginPath();
+                            ctx.moveTo(0, -flake.size * 0.3);
+                            ctx.lineTo(-flake.size * 0.2, -flake.size * 0.5);
+                            ctx.moveTo(0, -flake.size * 0.3);
+                            ctx.lineTo(flake.size * 0.2, -flake.size * 0.5);
+                            ctx.stroke();
+                        }
+                        ctx.restore();
+                    }
+                    
+                    // 중심점
+                    ctx.beginPath();
+                    ctx.arc(0, 0, flake.size * 0.2, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.restore();
+                    
+                    // 눈 쌓임 효과
+                    if (flake.y > height - 50) {
+                        const pileColor = applyFilterToColor({ r: 250, g: 250, b: 250 });
+                        ctx.fillStyle = `rgba(${Math.floor(pileColor.r)}, ${Math.floor(pileColor.g)}, ${Math.floor(pileColor.b)}, 0.15)`;
+                        ctx.beginPath();
+                        ctx.ellipse(flake.x, height - 40, flake.size * 2, flake.size * 0.5, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    
+                    return flake.y < height;
+                });
+                
+                // 눈보라 효과 (강도가 높을 때)
+                if (state.weatherIntensity > 2) {
+                    const blizzardColor = applyFilterToColor({ r: 240, g: 240, b: 250 });
+                    ctx.fillStyle = `rgba(${Math.floor(blizzardColor.r)}, ${Math.floor(blizzardColor.g)}, ${Math.floor(blizzardColor.b)}, ${0.03 * state.weatherIntensity})`;
+                    ctx.fillRect(0, 0, width, height);
+                }
             }
         }
 
-        // 밝기 조절 슬라이더 설정 (슬랙 웹뷰 전용)
-        function setupBrightnessControl() {
-            const slider = document.getElementById('brightnessSlider');
-            const handle = document.getElementById('brightnessHandle');
-            const valueLabel = document.getElementById('brightnessValue');
-            
-            if (!slider || !handle || !valueLabel) return;
-            
-            let isDragging = false;
-            
-            function updateBrightness(clientX) {
-                const rect = slider.getBoundingClientRect();
-                const x = clientX - rect.left;
-                const percentage = Math.max(0, Math.min(1, x / rect.width));
-                
-                // 밝기 범위: 1.0 ~ 2.0
-                currentBrightness = 1.0 + percentage;
-                
-                handle.style.left = (percentage * 100) + '%';
-                valueLabel.textContent = currentBrightness.toFixed(1);
-                
-                // 실시간 밝기 적용
-                applyBrightnessAdjustment();
-            }
-            
-            function applyBrightnessAdjustment() {
-                const isAndroid = document.body.classList.contains('android-webview');
-                
-                if (isAndroid) {
-                    // Android는 추가 보정
-                    document.body.style.filter = `brightness(${currentBrightness}) contrast(${1.05 + (currentBrightness - 1.3) * 0.1}) saturate(1.1)`;
-                } else {
-                    document.body.style.filter = `brightness(${currentBrightness}) contrast(1.1)`;
-                }
-            }
-            
-            slider.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                isDragging = true;
-                updateBrightness(e.touches[0].clientX);
-            });
-            
-            document.addEventListener('touchmove', (e) => {
-                if (isDragging && e.touches[0]) {
-                    e.preventDefault();
-                    updateBrightness(e.touches[0].clientX);
-                }
-            }, { passive: false });
-            
-            document.addEventListener('touchend', () => {
-                isDragging = false;
-            });
-            
-            slider.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                updateBrightness(e.clientX);
-            });
-            
-            document.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    updateBrightness(e.clientX);
-                }
-            });
-            
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-        }
-
-        // UI 레이아웃 계산
-        function calculateUILayout() {
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            const aspectRatio = viewportWidth / viewportHeight;
-            
-            const uiContainer = document.getElementById('uiContainer');
-            const uiWrapper = document.getElementById('uiWrapper');
-            
-            if (!uiContainer || !uiWrapper) return;
-            
-            if (aspectRatio < 1) {
-                // 세로 모드 - 화면 너비 100% 사용
-                uiWrapper.style.setProperty('--ui-width', '100%');
-                uiContainer.style.padding = '10px 5px';
-            } else {
-                // 가로 모드 - 화면 높이 기준으로 정사각형 영역 할당
-                const uiWidth = Math.min(viewportHeight, viewportWidth * 0.8);
-                const marginSize = (viewportWidth - uiWidth) / 2;
-                
-                uiWrapper.style.setProperty('--ui-width', `${uiWidth}px`);
-                uiContainer.style.padding = `10px ${marginSize}px`;
-            }
-        }
-
-        window.addEventListener('resize', calculateUILayout);
-        window.addEventListener('orientationchange', () => {
-            setTimeout(calculateUILayout, 100);
-        });
-
+        // ========================================
+        // UI 컨트롤 함수들
+        // ========================================
+        
         // 필터 관리
         function createFilterDots() {
             const dotsContainer = document.getElementById('filterDots');
@@ -1243,20 +1343,11 @@
             currentFilterIndex = index;
             const filter = filters[index];
             
-            // 이전 필터 클래스 제거
-            filters.forEach(f => {
-                document.body.classList.remove(`filter-${f.class}`);
-            });
-            
-            // 새 필터 적용
-            document.body.classList.add(`filter-${filter.class}`);
             state.filter = filter.class;
             
-            // UI 업데이트
             document.getElementById('filterName').textContent = filter.name;
             document.getElementById('filterText').textContent = filter.name;
             
-            // 점 업데이트
             document.querySelectorAll('.filter-dot').forEach((dot, i) => {
                 dot.classList.toggle('active', i === index);
             });
@@ -1289,64 +1380,7 @@
                 if (handle) {
                     handle.style.left = (dayProgress * 100) + '%';
                 }
-                
-                updateDayNightCycle(dayProgress);
             }
-        }
-
-        // 낮/밤 사이클
-        function updateDayNightCycle(timeValue) {
-            const skyBackground = document.getElementById('skyBackground');
-            const celestialBody = document.getElementById('celestialBody');
-            
-            if (!skyBackground || !celestialBody) return;
-            
-            // 기존 클래스 제거
-            skyBackground.className = '';
-            
-            let celestialClass, celestialPosition;
-            
-            if (timeValue < 0.25) {
-                // 밤 (0:00 - 6:00)
-                skyBackground.classList.add('sky-night');
-                celestialClass = 'moon';
-                const t = timeValue / 0.25;
-                celestialPosition = { x: 20 + t * 30, y: 70 - t * 50 };
-            } else if (timeValue < 0.35) {
-                // 새벽 (6:00 - 8:24)
-                skyBackground.classList.add('sky-dawn');
-                celestialClass = 'sun';
-                const t = (timeValue - 0.25) / 0.1;
-                celestialPosition = { x: 35 + t * 15, y: 45 - t * 25 };
-            } else if (timeValue < 0.5) {
-                // 아침 (8:24 - 12:00)
-                skyBackground.classList.add('sky-morning');
-                celestialClass = 'sun';
-                const t = (timeValue - 0.35) / 0.15;
-                celestialPosition = { x: 50, y: 20 - t * 10 };
-            } else if (timeValue < 0.7) {
-                // 낮 (12:00 - 16:48)
-                skyBackground.classList.add('sky-day');
-                celestialClass = 'sun';
-                const t = (timeValue - 0.5) / 0.2;
-                celestialPosition = { x: 50 + t * 30, y: 10 + t * 35 };
-            } else if (timeValue < 0.85) {
-                // 일몰 (16:48 - 20:24)
-                skyBackground.classList.add('sky-sunset');
-                celestialClass = 'sun';
-                const t = (timeValue - 0.7) / 0.15;
-                celestialPosition = { x: 80 - t * 10, y: 45 + t * 25 };
-            } else {
-                // 밤 (20:24 - 24:00)
-                skyBackground.classList.add('sky-night');
-                celestialClass = 'moon';
-                const t = (timeValue - 0.85) / 0.15;
-                celestialPosition = { x: 70 - t * 50, y: 70 - t * 50 };
-            }
-            
-            celestialBody.className = celestialClass;
-            celestialBody.style.left = celestialPosition.x + '%';
-            celestialBody.style.top = celestialPosition.y + '%';
         }
 
         // 드롭다운 관리
@@ -1362,7 +1396,6 @@
                 sectionEl.addEventListener('click', (e) => {
                     e.stopPropagation();
                     
-                    // 다른 드롭다운 닫기
                     sections.forEach(other => {
                         if (other !== section) {
                             const otherSection = document.getElementById(`${other}Section`);
@@ -1372,18 +1405,15 @@
                         }
                     });
                     
-                    // 현재 드롭다운 토글
                     sectionEl.classList.toggle('active');
                     dropdownEl.classList.toggle('active');
                     
-                    // 저장 드롭다운인 경우 프리셋 목록 로드
                     if (section === 'save' && dropdownEl.classList.contains('active')) {
                         loadPresets();
                     }
                 });
             });
 
-            // 바깥 클릭시 모든 드롭다운 닫기
             document.addEventListener('click', () => {
                 sections.forEach(section => {
                     const sectionEl = document.getElementById(`${section}Section`);
@@ -1393,7 +1423,6 @@
                 });
             });
 
-            // 드롭다운 내부 클릭시 이벤트 전파 중지
             document.querySelectorAll('.dropdown-content').forEach(dropdown => {
                 dropdown.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1419,7 +1448,6 @@
                 state.manualTime = true;
                 todHandle.style.left = (percentage * 100) + '%';
                 
-                // 시간 계산 및 표시
                 const totalMinutes = Math.floor(percentage * 24 * 60);
                 const hours = Math.floor(totalMinutes / 60);
                 const minutes = totalMinutes % 60;
@@ -1427,11 +1455,8 @@
                 const hoursStr = hours.toString().padStart(2, '0');
                 const minutesStr = minutes.toString().padStart(2, '0');
                 document.getElementById('digitalClock').textContent = `${hoursStr}:${minutesStr}`;
-                
-                updateDayNightCycle(percentage);
             }
 
-            // 터치 이벤트
             todTrack.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 isDragging = true;
@@ -1449,7 +1474,6 @@
                 isDragging = false;
             });
 
-            // 마우스 이벤트
             todTrack.addEventListener('mousedown', (e) => {
                 isDragging = true;
                 updateTodPosition(e.clientX);
@@ -1465,7 +1489,7 @@
                 isDragging = false;
             });
 
-            // 더블 탭으로 자동 시간 모드 전환
+            // 더블 탭으로 자동 시간 모드
             let lastTap = 0;
             todTrack.addEventListener('touchend', (e) => {
                 const currentTime = new Date().getTime();
@@ -1480,11 +1504,10 @@
             });
         }
 
-        // 날씨 효과
+        // 날씨 설정
         function setupWeather() {
             document.querySelectorAll('.weather-option').forEach(option => {
                 option.addEventListener('click', (e) => {
-                    // 강도 레벨 클릭인 경우 처리하지 않음
                     if (e.target.classList.contains('intensity-level')) {
                         e.stopPropagation();
                         return;
@@ -1493,13 +1516,11 @@
                     const weather = option.dataset.weather;
                     selectWeather(weather);
                     
-                    // 활성 상태 업데이트
                     document.querySelectorAll('.weather-option').forEach(opt => {
                         opt.classList.toggle('active', opt === option);
                     });
                 });
                 
-                // 강도 레벨 설정
                 option.querySelectorAll('.intensity-level').forEach((level, index) => {
                     level.addEventListener('click', (e) => {
                         e.stopPropagation();
@@ -1512,6 +1533,8 @@
 
         function selectWeather(weather) {
             state.weather = weather;
+            state.raindrops = [];
+            state.snowflakes = [];
             
             const weatherData = {
                 clear: { icon: '☀️', text: '맑음' },
@@ -1525,62 +1548,14 @@
             
             if (weatherIcon) weatherIcon.textContent = weatherData[weather].icon;
             if (weatherText) weatherText.textContent = weatherData[weather].text;
-            
-            applyWeatherEffects(weather, state.weatherIntensity);
         }
 
         function setWeatherIntensity(weather, intensity, option) {
             state.weatherIntensity = intensity;
             
-            // 강도 레벨 UI 업데이트
             option.querySelectorAll('.intensity-level').forEach((level, index) => {
                 level.classList.toggle('active', index < intensity);
             });
-            
-            // 현재 날씨와 일치하면 효과 적용
-            if (state.weather === weather) {
-                applyWeatherEffects(weather, intensity);
-            }
-        }
-
-        function applyWeatherEffects(weather, intensity) {
-            const effectsContainer = document.getElementById('weatherEffects');
-            if (!effectsContainer) return;
-            
-            // 기존 효과 제거
-            effectsContainer.innerHTML = '';
-            
-            // 구름 처리
-            const clouds = document.querySelectorAll('.cloud');
-            clouds.forEach(cloud => {
-                cloud.classList.toggle('active', weather === 'cloudy');
-            });
-            
-            switch(weather) {
-                case 'rain':
-                    const rainCount = intensity * 10;
-                    for (let i = 0; i < rainCount; i++) {
-                        const rain = document.createElement('div');
-                        rain.className = 'rain';
-                        rain.style.left = Math.random() * 100 + '%';
-                        rain.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
-                        rain.style.animationDelay = Math.random() * 2 + 's';
-                        effectsContainer.appendChild(rain);
-                    }
-                    break;
-                    
-                case 'snow':
-                    const snowCount = intensity * 8;
-                    for (let i = 0; i < snowCount; i++) {
-                        const snow = document.createElement('div');
-                        snow.className = 'snow';
-                        snow.style.left = Math.random() * 100 + '%';
-                        snow.style.animationDuration = (Math.random() * 3 + 3) + 's';
-                        snow.style.animationDelay = Math.random() * 3 + 's';
-                        effectsContainer.appendChild(snow);
-                    }
-                    break;
-            }
         }
 
         // 셰이딩 모드
@@ -1590,19 +1565,14 @@
                     const mode = option.dataset.shading;
                     state.shadingMode = mode;
                     
-                    // 활성 상태 업데이트
                     document.querySelectorAll('.shading-option').forEach(opt => {
                         opt.classList.toggle('active', opt === option);
                     });
                     
-                    // 텍스트 업데이트
                     const shadingText = document.getElementById('shadingText');
                     if (shadingText) {
                         shadingText.textContent = mode === 'normal' ? '일반' : '툰';
                     }
-                    
-                    // 툰 셰이딩 토글
-                    document.body.classList.toggle('toon-shading', mode === 'toon');
                 });
             });
         }
@@ -1618,16 +1588,16 @@
                 return;
             }
             
-            const presets = JSON.parse(localStorage.getItem('scenePresets') || '{}');
+            const presets = JSON.parse(localStorage.getItem('scenePresetsCanvas') || '{}');
             presets[name] = { ...state };
-            localStorage.setItem('scenePresets', JSON.stringify(presets));
+            localStorage.setItem('scenePresetsCanvas', JSON.stringify(presets));
             
             nameInput.value = '';
             loadPresets();
         }
 
         function loadPresets() {
-            const presets = JSON.parse(localStorage.getItem('scenePresets') || '{}');
+            const presets = JSON.parse(localStorage.getItem('scenePresetsCanvas') || '{}');
             const presetList = document.getElementById('presetList');
             
             if (!presetList) return;
@@ -1656,61 +1626,104 @@
         }
 
         function loadPreset(name) {
-            const presets = JSON.parse(localStorage.getItem('scenePresets') || '{}');
+            const presets = JSON.parse(localStorage.getItem('scenePresetsCanvas') || '{}');
             const preset = presets[name];
             if (!preset) return;
             
-            // 상태 복원
             Object.assign(state, preset);
             
-            // 필터 적용
             const filterIndex = filters.findIndex(f => f.class === state.filter);
             if (filterIndex !== -1) {
                 selectFilter(filterIndex);
             }
             
-            // 날씨 적용
             selectWeather(state.weather);
             document.querySelectorAll('.weather-option').forEach(opt => {
                 opt.classList.toggle('active', opt.dataset.weather === state.weather);
             });
             
-            // 셰이딩 적용
             document.querySelectorAll('.shading-option').forEach(opt => {
                 opt.classList.toggle('active', opt.dataset.shading === state.shadingMode);
             });
-            document.body.classList.toggle('toon-shading', state.shadingMode === 'toon');
             
-            // 시간 적용
             state.manualTime = true;
             const handle = document.getElementById('todHandle');
             if (handle) {
                 handle.style.left = (state.timeOfDay * 100) + '%';
             }
-            updateDayNightCycle(state.timeOfDay);
             
-            // 드롭다운 닫기
             document.querySelectorAll('.ui-section, .dropdown-content').forEach(el => {
                 el.classList.remove('active');
             });
         }
 
         function deletePreset(name) {
-            const presets = JSON.parse(localStorage.getItem('scenePresets') || '{}');
+            const presets = JSON.parse(localStorage.getItem('scenePresetsCanvas') || '{}');
             delete presets[name];
-            localStorage.setItem('scenePresets', JSON.stringify(presets));
+            localStorage.setItem('scenePresetsCanvas', JSON.stringify(presets));
             loadPresets();
         }
 
-        // 초기화
-        function init() {
-            console.log('SuperPlat Scene UI 초기화 시작 (명도 보정 버전)');
+        // ========================================
+        // 메인 렌더링 루프
+        // ========================================
+        function render() {
+            // 화면 지우기
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
             
-            // WebView 감지 및 명도 보정 적용 - 가장 먼저 실행
-            detectAndApplyWebViewFixes();
+            // 씬 렌더링 (레이어 순서)
+            drawSky();           // 하늘
+            drawCelestialBody(); // 태양/달
+            drawClouds();        // 구름
+            drawGround();        // 지면
+            drawCharacter();     // 캐릭터
+            drawWeatherEffects(); // 날씨 효과
+            
+            // 다음 프레임
+            requestAnimationFrame(render);
+        }
+
+        // ========================================
+        // 초기화
+        // ========================================
+        function init() {
+            console.log('🎮 SuperPlat Canvas 필터 강화판 시작');
+            console.log('🎨 16개 필터 전체 씬 적용 완료');
+            
+            // 슬랙 감지
+            const isSlack = detectSlackWebView();
+            if (isSlack) {
+                console.log('✅ Canvas 렌더링으로 슬랙 필터 우회 성공');
+            }
             
             // UI 레이아웃 계산
+            const calculateUILayout = () => {
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const aspectRatio = viewportWidth / viewportHeight;
+                
+                const uiContainer = document.getElementById('uiContainer');
+                const uiWrapper = document.getElementById('uiWrapper');
+                
+                if (!uiContainer || !uiWrapper) return;
+                
+                if (aspectRatio < 1) {
+                    uiWrapper.style.setProperty('--ui-width', '100%');
+                    uiContainer.style.padding = '10px 5px';
+                } else {
+                    const uiWidth = Math.min(viewportHeight, viewportWidth * 0.8);
+                    const marginSize = (viewportWidth - uiWidth) / 2;
+                    
+                    uiWrapper.style.setProperty('--ui-width', `${uiWidth}px`);
+                    uiContainer.style.padding = `10px ${marginSize}px`;
+                }
+            };
+            
             calculateUILayout();
+            window.addEventListener('resize', calculateUILayout);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(calculateUILayout, 100);
+            });
             
             // 필터 초기화
             createFilterDots();
@@ -1719,23 +1732,17 @@
             // 날씨 초기화
             selectWeather('clear');
             
-            // 드롭다운 설정
+            // UI 설정
             setupDropdowns();
-            
-            // 슬라이더 설정
             setupTodSlider();
-            
-            // 날씨 설정
             setupWeather();
-            
-            // 셰이딩 설정
             setupShading();
             
             // 시계 시작
             updateClock();
             setInterval(updateClock, 1000);
             
-            // 날씨 강도 기본값 설정
+            // 날씨 강도 기본값
             document.querySelectorAll('.weather-option').forEach(option => {
                 if (option.dataset.weather !== 'clear') {
                     option.querySelectorAll('.intensity-level').forEach((level, index) => {
@@ -1744,7 +1751,10 @@
                 }
             });
             
-            console.log('초기화 완료 - 슬랙 웹뷰 명도 보정 적용됨');
+            // 렌더링 시작
+            requestAnimationFrame(render);
+            
+            console.log('✨ 초기화 완료 - 모든 요소에 필터 적용 중');
         }
 
         // 페이지 로드시 초기화
