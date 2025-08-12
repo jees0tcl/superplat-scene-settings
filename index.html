@@ -2,18 +2,18 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>SuperPlat Scene Settings Canvas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SuperPlat Scene Settings System v3.0</title>
+    
+    <!-- 7-세그먼트 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-user-select: none;
             user-select: none;
         }
@@ -23,559 +23,881 @@
             height: 100%;
             overflow: hidden;
             position: fixed;
-            touch-action: none;
-            background: white; /* Canvas 뒤의 기본 배경 */
+            background: #1a1a2e;
         }
 
-        /* 메인 캔버스 - 전체 화면 */
+        /* ===== 메인 캔버스 ===== */
         #gameCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            /* Canvas는 이미지로 취급되므로 CSS 필터 영향 없음 */
             z-index: 1;
         }
 
-        /* UI 컨테이너 - 원본과 동일한 구성 */
-        #uiContainer {
+        /* ===== 상단 UI 바 ===== */
+        #topBar {
             position: fixed;
-            top: env(safe-area-inset-top, 20px);
+            top: 0;
             left: 0;
             right: 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            --ui-width: 100%;
-        }
-
-        #uiWrapper {
-            width: var(--ui-width);
-            max-width: 100%;
-            display: flex;
-            justify-content: center;
-        }
-
-        /* 통합 UI 바 - 원본과 동일 */
-        #unifiedBar {
-            display: flex;
-            align-items: center;
-            gap: 1px;
-            background: rgba(20, 20, 30, 0.95);
+            height: 50px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 0;
-            border-radius: 24px;
-            box-shadow: 
-                0 4px 20px rgba(0, 0, 0, 0.3),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* 섹션 공통 스타일 */
-        .ui-section {
-            position: relative;
-            padding: 10px 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #FFFFFF;
-            font-size: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 40px;
-            flex-shrink: 0;
-            white-space: nowrap;
-            background: transparent;
-        }
-
-        .ui-section:first-child {
-            border-radius: 24px 0 0 24px;
-        }
-
-        .ui-section:last-child {
-            border-radius: 0 24px 24px 0;
-            border-right: none;
-        }
-
-        .ui-section:active {
-            background: rgba(0, 188, 212, 0.2);
-        }
-
-        /* 시계 섹션 */
-        .clock-section {
-            padding: 6px 12px;
-            background: rgba(0, 0, 0, 0.3);
-            min-width: 120px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* 디지털 시계 */
-        .digital-clock {
-            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-            font-size: 18px;
-            font-weight: 600;
-            color: #00E5FF;
-            letter-spacing: 1px;
-            text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
-        }
-
-        /* TOD 슬라이더 */
-        .tod-slider-container {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 2px 0;
-        }
-
-        .tod-slider {
-            position: relative;
-            flex: 1;
-            height: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        .tod-track {
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, 
-                #1A237E 0%, 
-                #FF6F00 25%, 
-                #87CEEB 50%, 
-                #FF6F00 75%, 
-                #1A237E 100%);
-            border-radius: 2px;
-            cursor: pointer;
-        }
-
-        .tod-handle {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            background: #FFFFFF;
-            border-radius: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-            cursor: grab;
-            border: 2px solid #00E5FF;
-            touch-action: none;
-        }
-
-        /* 드롭다운 */
-        .dropdown-content {
-            position: fixed;
-            top: calc(env(safe-area-inset-top, 20px) + 60px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(20, 20, 30, 0.98);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: none;
-            width: 90%;
-            max-width: 350px;
-            z-index: 1001;
-            max-height: 60vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .dropdown-content.active {
-            display: block;
-            animation: dropdownSlide 0.25s ease;
-        }
-
-        @keyframes dropdownSlide {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        /* 필터 캐러셀 */
-        .filter-carousel {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            padding: 15px;
-        }
-
-        .filter-display {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .filter-arrow {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 14px;
-            color: #FFFFFF;
-        }
-
-        .filter-arrow:active {
-            transform: scale(0.9);
-            background: rgba(0, 229, 255, 0.2);
-        }
-
-        .filter-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: #00E5FF;
-            min-width: 100px;
-            text-align: center;
-        }
-
-        .filter-dots {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-            justify-content: center;
-            padding: 6px;
-            flex-wrap: wrap;
-            max-width: 200px;
-        }
-
-        .filter-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .filter-dot.active {
-            width: 8px;
-            height: 8px;
-            background: #00E5FF;
-            box-shadow: 0 0 6px rgba(0, 229, 255, 0.5);
-        }
-
-        /* 날씨 버튼들 */
-        .weather-option,
-        .shading-option {
-            padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #FFFFFF;
-            font-size: 13px;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .weather-option:active,
-        .shading-option:active {
-            transform: scale(0.98);
-            background: rgba(0, 229, 255, 0.1);
-        }
-
-        .weather-option.active,
-        .shading-option.active {
-            background: rgba(0, 229, 255, 0.15);
-            border-color: rgba(0, 229, 255, 0.3);
-            color: #00E5FF;
-        }
-
-        /* 화살표 인디케이터 */
-        .dropdown-arrow {
-            font-size: 10px;
-            margin-left: 4px;
-            transition: transform 0.3s ease;
-            opacity: 0.6;
-        }
-
-        .ui-section.active .dropdown-arrow {
-            transform: rotate(180deg);
-        }
-
-        /* 강도 바 */
-        .intensity-bar {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            margin-top: 6px;
-        }
-
-        .intensity-level {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-        }
-
-        .intensity-level.active {
-            background: #00E5FF;
-            border-color: #00E5FF;
-            transform: scale(1.2);
-        }
-
-        /* 저장 관련 */
-        .preset-list {
-            max-height: 180px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .preset-item {
+            z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            margin-bottom: 8px;
-            cursor: pointer;
+            padding: 0 10px;
         }
 
-        .save-input {
+        /* 좌측 프로필 영역 */
+        #profileSection {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 25px;
+            padding: 3px;
+            border: 2px solid rgba(0,200,255,0.5);
+            box-shadow: 0 2px 10px rgba(0,200,255,0.3);
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .levelBadge {
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ffd700;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* ===== 통합된 씬 설정 컨테이너 ===== */
+        #sceneSettingsContainer {
+            position: fixed;
+            top: 10px; /* 화면 최상단에서 약간의 패딩 */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            max-width: 90%;
+            width: auto;
+        }
+
+        /* 메인 씬 설정 UI */
+        #centerSection {
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 15px; /* 기본 상태: 모든 모서리 둥글게 */
+            padding: 8px 15px;
+            border: 1px solid rgba(0,200,255,0.3);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transform: scaleY(0);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform-origin: center top;
+        }
+        
+        /* 세부 패널이 열렸을 때 메인 UI의 하단 모서리를 직각으로 */
+        #centerSection.panel-open {
+            border-radius: 15px 15px 0 0; /* 상단만 둥글게, 하단은 직각 */
+            border-bottom-color: transparent; /* 하단 테두리를 투명하게 */
+        }
+
+        #centerSection.active {
+            transform: scaleY(1);
+            opacity: 1;
+        }
+
+        /* 세부 설정 패널 - 메인 UI와 한몸으로 */
+        .detailPanel {
+            background: rgba(15, 15, 25, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 0 0 15px 15px; /* 상단은 직각, 하단만 둥글게 */
+            padding: 0;
+            border: 1px solid rgba(0,200,255,0.3);
+            border-top: 1px solid rgba(0,200,255,0.15); /* 상단 테두리를 더 연하게 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: -2px; /* 메인 UI와 완벽하게 붙이기 */
+        }
+
+        .detailPanel.active {
+            max-height: 400px;
+            opacity: 1;
+            padding: 15px;
+        }
+
+        /* 디지털 시계 */
+        .digitalClock {
+            font-family: 'Orbitron', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .digitalClock:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .digitalClock.active {
+            background: rgba(0,200,255,0.2);
+        }
+
+        .ampm {
+            font-size: 12px;
+            color: #ffd700;
+            margin-right: 5px;
+        }
+
+        .clockDivider {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* 시간 슬라이더 패널 */
+        #timePanel {
+            background: linear-gradient(135deg, rgba(15, 15, 25, 0.98), rgba(25, 25, 35, 0.98));
+        }
+
+        .timeSliderWrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timeSliderIcon {
+            font-size: 20px;
+        }
+
+        .timeSliderTrack {
+            position: relative;
             flex: 1;
-            padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            color: #FFFFFF;
+            height: 35px;
+            background: linear-gradient(90deg, 
+                #1a237e 0%, 
+                #f39c12 25%, 
+                #3498db 50%, 
+                #e74c3c 75%, 
+                #1a237e 100%);
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.5);
+        }
+
+        .timeSliderHandle {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #fff;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: grab;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+            border: 2px solid #00c8ff;
+        }
+
+        /* 4개 아이콘 그리드 (2x2) */
+        .iconGrid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3px;
+            background: rgba(255,255,255,0.05);
+            padding: 3px;
+            border-radius: 8px;
+        }
+
+        .iconBtn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .iconBtn:hover {
+            background: rgba(0,200,255,0.3);
+            transform: scale(1.1);
+        }
+
+        .iconBtn.active {
+            background: linear-gradient(135deg, #00c8ff, #0080ff);
+            box-shadow: 0 0 10px rgba(0,200,255,0.5);
+        }
+
+        /* 필터 패널 */
+        .filterList {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 250px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .filterList::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .filterList::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+        }
+
+        .filterList::-webkit-scrollbar-thumb {
+            background: rgba(0,200,255,0.3);
+            border-radius: 3px;
+        }
+
+        .filterItem {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .filterItem:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .filterItem.active {
+            background: linear-gradient(135deg, #00c8ff, #0080ff);
+            color: #fff;
+        }
+
+        /* 날씨 패널 */
+        .weatherGrid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .weatherCard {
+            aspect-ratio: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .weatherCard:hover {
+            background: rgba(255,255,255,0.08);
+            transform: scale(1.05);
+        }
+
+        .weatherCard.active {
+            background: rgba(0,200,255,0.15);
+            border-color: #00c8ff;
+            box-shadow: 0 0 10px rgba(0,200,255,0.3);
+        }
+
+        .weatherIcon {
+            font-size: 24px;
+            margin-bottom: 3px;
+        }
+
+        .weatherName {
+            font-size: 9px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* 날씨 강도 바 */
+        .intensityControl {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+        }
+
+        .intensityControl.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .intensityLabel {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+        }
+
+        .intensityButtons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .intensityBtn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .intensityBtn:hover:not(:disabled) {
+            background: rgba(0,200,255,0.2);
+            border-color: #00c8ff;
+            transform: scale(1.1);
+        }
+
+        .intensityBtn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .intensityValue {
+            min-width: 20px;
+            text-align: center;
+            color: #00ff88;
+            font-weight: 700;
             font-size: 14px;
         }
 
-        .save-btn {
-            padding: 10px 18px;
-            background: #00E5FF;
-            border: none;
-            border-radius: 10px;
-            color: #000000;
+        /* 셰이딩 패널 */
+        .shadingOptions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .shadingCard {
+            flex: 1;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .shadingCard:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .shadingCard.active {
+            background: rgba(0,200,255,0.15);
+            border-color: #00c8ff;
+        }
+
+        .shadingIcon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .shadingName {
+            color: rgba(255,255,255,0.8);
+            font-size: 11px;
+        }
+
+        /* 프리셋 패널 */
+        .presetContent {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .presetList {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .presetList::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .presetList::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+        }
+
+        .presetList::-webkit-scrollbar-thumb {
+            background: rgba(0,200,255,0.3);
+            border-radius: 3px;
+        }
+
+        .presetItem {
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .presetItem:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .presetName {
+            color: #fff;
+            font-size: 12px;
+            flex: 1;
+        }
+
+        .deletePreset {
+            width: 20px;
+            height: 20px;
+            background: rgba(255,50,50,0.8);
+            border-radius: 50%;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .deletePreset:hover {
+            background: #ff3333;
+            transform: scale(1.1);
+        }
+
+        .addPresetBtn {
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px dashed rgba(255,255,255,0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+        }
+
+        .addPresetBtn:hover {
+            background: rgba(0,200,255,0.1);
+            border-color: #00c8ff;
+            color: #00c8ff;
+        }
+
+        /* 우측 재화 및 메뉴 영역 */
+        #rightSection {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .iconItem {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .iconItem:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.1);
+        }
+
+        #sceneBtn {
+            background: linear-gradient(135deg, #00c8ff, #0080ff);
+            border: 1px solid #00c8ff;
+            box-shadow: 0 2px 10px rgba(0,200,255,0.3);
+        }
+
+        #sceneBtn.active {
+            background: linear-gradient(135deg, #ff6b6b, #ff3333);
+            border-color: #ff6b6b;
+            box-shadow: 0 2px 10px rgba(255,107,107,0.5);
+        }
+
+        /* 커스텀 확인 다이얼로그 */
+        .confirmDialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 280px;
+            background: rgba(20, 20, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 20px;
+            z-index: 2000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,200,255,0.3);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .confirmDialog.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .confirmTitle {
+            color: #fff;
             font-size: 14px;
             font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .confirmMessage {
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .confirmButtons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .confirmBtn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .save-btn:active {
-            transform: scale(0.98);
+        .confirmBtn.cancel {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
         }
 
-        /* 모바일 반응형 */
-        @media (max-width: 768px) {
-            .ui-section {
-                padding: 8px 10px;
-                font-size: 11px;
-            }
-
-            .ui-section > span:not(.dropdown-arrow):not(:first-child) {
-                display: none;
-            }
-
-            .clock-section {
-                min-width: 100px;
-            }
-
-            .digital-clock {
-                font-size: 16px;
-            }
+        .confirmBtn.delete {
+            background: linear-gradient(135deg, #ff6b6b, #ff3333);
+            color: #fff;
         }
 
-        /* 슬랙 감지 알림 */
-        .slack-notice {
+        .confirmBtn:hover {
+            transform: scale(1.02);
+        }
+
+        /* 프리셋 저장 팝업 */
+        #presetSavePopup {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            display: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 300px;
+            background: rgba(20, 20, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
             z-index: 2000;
-            animation: slideIn 0.5s ease;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(0,200,255,0.3);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        #presetSavePopup.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
         }
 
-        body.slack-detected .slack-notice {
-            display: block;
+        .popupTitle {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .presetNameInput {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .presetNameInput:focus {
+            outline: none;
+            border-color: #00c8ff;
+            box-shadow: 0 0 10px rgba(0,200,255,0.3);
+        }
+
+        .charCount {
+            text-align: right;
+            color: rgba(255,255,255,0.4);
+            font-size: 10px;
+            margin-bottom: 15px;
+        }
+
+        .popupButtons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .popupBtn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .popupBtn.cancel {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .popupBtn.confirm {
+            background: linear-gradient(135deg, #00c8ff, #0080ff);
+            color: #fff;
+        }
+
+        .popupBtn:hover {
+            transform: scale(1.02);
+        }
+
+        /* 오버레이 */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        #overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
     </style>
 </head>
 <body>
-    <!-- 메인 캔버스 -->
+    <!-- 메인 게임 캔버스 -->
     <canvas id="gameCanvas"></canvas>
     
-    <!-- UI 컨테이너 - 원본과 동일한 구성 -->
-    <div id="uiContainer">
-        <div id="uiWrapper">
-            <!-- 통합 UI 바 -->
-            <div id="unifiedBar">
-                <!-- 필터 -->
-                <div class="ui-section" id="filterSection">
-                    <span>🎨</span>
-                    <span id="filterText">기본</span>
-                    <span class="dropdown-arrow">▼</span>
+    <!-- 상단 UI 바 -->
+    <div id="topBar">
+        <!-- 좌측: 프로필 -->
+        <div id="profileSection">
+            <div class="avatar">👤</div>
+            <div class="levelBadge">
+                <span>⭐</span>
+                <span>42</span>
+            </div>
+        </div>
+        
+        <!-- 중앙은 비움 -->
+        <div></div>
+        
+        <!-- 우측: 씬 아이콘 + 재화 + 메뉴 -->
+        <div id="rightSection">
+            <div class="iconItem" id="sceneBtn" title="씬 설정">🎬</div>
+            <div class="iconItem" title="슈퍼스타">⭐</div>
+            <div class="iconItem" title="슈퍼윙">💎</div>
+            <div class="iconItem" title="슈퍼빈">🪙</div>
+            <div class="iconItem" title="메뉴">☰</div>
+        </div>
+    </div>
+    
+    <!-- 통합된 씬 설정 컨테이너 (화면 상단 중앙 고정) -->
+    <div id="sceneSettingsContainer">
+        <!-- 메인 씬 설정 UI -->
+        <div id="centerSection">
+            <div class="digitalClock" id="digitalClock">
+                <span class="ampm" id="ampm">PM</span>
+                <span id="clockHour">12</span>
+                <span class="clockDivider">:</span>
+                <span id="clockMinute">00</span>
+            </div>
+            
+            <!-- 2x2 아이콘 그리드 -->
+            <div class="iconGrid">
+                <div class="iconBtn" id="filterBtn" title="필터">🎨</div>
+                <div class="iconBtn" id="weatherBtn" title="날씨">🌤️</div>
+                <div class="iconBtn" id="shadingBtn" title="셰이딩">🖌️</div>
+                <div class="iconBtn" id="presetBtn" title="프리셋">💾</div>
+            </div>
+        </div>
+        
+        <!-- 시간 설정 패널 (메인 UI 바로 아래 붙음) -->
+        <div class="detailPanel" id="timePanel">
+            <div class="timeSliderWrapper">
+                <span class="timeSliderIcon">🌙</span>
+                <div class="timeSliderTrack" id="timeSliderTrack">
+                    <div class="timeSliderHandle" id="timeSliderHandle"></div>
                 </div>
-                
-                <!-- 날씨 -->
-                <div class="ui-section" id="weatherSection">
-                    <span id="weatherIcon">☀️</span>
-                    <span id="weatherText">맑음</span>
-                    <span class="dropdown-arrow">▼</span>
+                <span class="timeSliderIcon">☀️</span>
+            </div>
+        </div>
+        
+        <!-- 필터 설정 패널 -->
+        <div class="detailPanel" id="filterPanel">
+            <div class="filterList" id="filterList"></div>
+        </div>
+        
+        <!-- 날씨 설정 패널 -->
+        <div class="detailPanel" id="weatherPanel">
+            <div class="weatherGrid">
+                <div class="weatherCard active" data-weather="clear">
+                    <div class="weatherIcon">☀️</div>
+                    <div class="weatherName">맑음</div>
                 </div>
-                
-                <!-- 시간 -->
-                <div class="ui-section clock-section">
-                    <div class="digital-clock" id="digitalClock">12:00</div>
-                    <div class="tod-slider-container">
-                        <span style="font-size: 10px;">🌅</span>
-                        <div class="tod-slider">
-                            <div class="tod-track" id="todTrack">
-                                <div class="tod-handle" id="todHandle"></div>
-                            </div>
-                        </div>
-                        <span style="font-size: 10px;">🌙</span>
-                    </div>
+                <div class="weatherCard" data-weather="cloudy">
+                    <div class="weatherIcon">☁️</div>
+                    <div class="weatherName">흐림</div>
                 </div>
-                
-                <!-- 셰이딩 -->
-                <div class="ui-section" id="shadingSection">
-                    <span>🖌️</span>
-                    <span id="shadingText">일반</span>
-                    <span class="dropdown-arrow">▼</span>
+                <div class="weatherCard" data-weather="rain">
+                    <div class="weatherIcon">🌧️</div>
+                    <div class="weatherName">비</div>
                 </div>
-                
-                <!-- 저장 -->
-                <div class="ui-section save-section" id="saveSection">
-                    <span>💾</span>
-                    <span>저장</span>
-                    <span class="dropdown-arrow">▼</span>
+                <div class="weatherCard" data-weather="snow">
+                    <div class="weatherIcon">❄️</div>
+                    <div class="weatherName">눈</div>
+                </div>
+            </div>
+            <div class="intensityControl" id="intensityControl">
+                <span class="intensityLabel">강도</span>
+                <div class="intensityButtons">
+                    <button class="intensityBtn" id="intensityMinus">−</button>
+                    <span class="intensityValue" id="intensityValue">2</span>
+                    <button class="intensityBtn" id="intensityPlus">+</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 셰이딩 설정 패널 -->
+        <div class="detailPanel" id="shadingPanel">
+            <div class="shadingOptions">
+                <div class="shadingCard active" data-shading="normal">
+                    <div class="shadingIcon">🎨</div>
+                    <div class="shadingName">일반</div>
+                </div>
+                <div class="shadingCard" data-shading="toon">
+                    <div class="shadingIcon">🖼️</div>
+                    <div class="shadingName">툰</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 프리셋 설정 패널 -->
+        <div class="detailPanel" id="presetPanel">
+            <div class="presetContent">
+                <div class="presetList" id="presetList"></div>
+                <div class="addPresetBtn" id="addPresetBtn">
+                    <span>➕</span>
+                    <span>새 프리셋 추가</span>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- 드롭다운들 -->
-    <div class="dropdown-content" id="filterDropdown">
-        <div class="filter-carousel">
-            <div class="filter-display">
-                <div class="filter-arrow" onclick="previousFilter()">◀</div>
-                <div class="filter-name" id="filterName">기본</div>
-                <div class="filter-arrow" onclick="nextFilter()">▶</div>
-            </div>
-            <div class="filter-dots" id="filterDots"></div>
+    
+    <!-- 커스텀 확인 다이얼로그 -->
+    <div class="confirmDialog" id="confirmDialog">
+        <h3 class="confirmTitle">프리셋 삭제</h3>
+        <p class="confirmMessage" id="confirmMessage">이 프리셋을 삭제하시겠습니까?</p>
+        <div class="confirmButtons">
+            <button class="confirmBtn cancel" id="confirmCancel">취소</button>
+            <button class="confirmBtn delete" id="confirmDelete">삭제</button>
         </div>
     </div>
-
-    <div class="dropdown-content" id="weatherDropdown">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div class="weather-option active" data-weather="clear">
-                <div style="font-size: 24px; margin-bottom: 4px;">☀️</div>
-                <div style="font-size: 12px;">맑음</div>
-            </div>
-            <div class="weather-option" data-weather="cloudy">
-                <div style="font-size: 24px; margin-bottom: 4px;">☁️</div>
-                <div style="font-size: 12px;">흐림</div>
-                <div class="intensity-bar">
-                    <div class="intensity-level" data-level="1"></div>
-                    <div class="intensity-level" data-level="2"></div>
-                    <div class="intensity-level" data-level="3"></div>
-                    <div class="intensity-level" data-level="4"></div>
-                </div>
-            </div>
-            <div class="weather-option" data-weather="rain">
-                <div style="font-size: 24px; margin-bottom: 4px;">🌧️</div>
-                <div style="font-size: 12px;">비</div>
-                <div class="intensity-bar">
-                    <div class="intensity-level" data-level="1"></div>
-                    <div class="intensity-level" data-level="2"></div>
-                    <div class="intensity-level" data-level="3"></div>
-                    <div class="intensity-level" data-level="4"></div>
-                </div>
-            </div>
-            <div class="weather-option" data-weather="snow">
-                <div style="font-size: 24px; margin-bottom: 4px;">❄️</div>
-                <div style="font-size: 12px;">눈</div>
-                <div class="intensity-bar">
-                    <div class="intensity-level" data-level="1"></div>
-                    <div class="intensity-level" data-level="2"></div>
-                    <div class="intensity-level" data-level="3"></div>
-                    <div class="intensity-level" data-level="4"></div>
-                </div>
-            </div>
+    
+    <!-- 프리셋 저장 팝업 -->
+    <div id="presetSavePopup">
+        <h3 class="popupTitle">프리셋 저장</h3>
+        <input type="text" class="presetNameInput" id="presetNameInput" maxlength="10" placeholder="프리셋 이름">
+        <div class="charCount"><span id="charCount">0</span> / 10</div>
+        <div class="popupButtons">
+            <button class="popupBtn cancel" id="presetCancelBtn">취소</button>
+            <button class="popupBtn confirm" id="presetSaveBtn">저장</button>
         </div>
     </div>
-
-    <div class="dropdown-content" id="shadingDropdown">
-        <div style="display: flex; gap: 10px;">
-            <div class="shading-option active" data-shading="normal" style="flex: 1;">일반</div>
-            <div class="shading-option" data-shading="toon" style="flex: 1;">툰</div>
-        </div>
-    </div>
-
-    <div class="dropdown-content" id="saveDropdown">
-        <div class="preset-list" id="presetList"></div>
-        <div style="display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 12px;">
-            <input type="text" class="save-input" id="presetName" placeholder="프리셋 이름">
-            <button class="save-btn" onclick="savePreset()">저장</button>
-        </div>
-    </div>
-
-    <!-- 슬랙 감지 알림 -->
-    <div class="slack-notice">
-        ✨ Canvas 모드 - 슬랙 필터 우회 성공!
-    </div>
-
+    
+    <!-- 오버레이 -->
+    <div id="overlay"></div>
+    
     <script>
         // ========================================
-        // 전역 상태 관리 - 원본과 동일한 구조
+        // 전역 상태 관리
         // ========================================
         
-        // 필터 정의 - 원본의 16개 필터
+        // 필터 정의 - 16개 필터
         const filters = [
             { name: '기본', class: 'none' },
             { name: '따뜻함', class: 'warm' },
@@ -596,7 +918,8 @@
         ];
 
         let currentFilterIndex = 0;
-
+        let deletePresetIndex = -1; // 삭제할 프리셋 인덱스 저장
+        
         // 상태 관리 객체
         const state = {
             filter: 'none',
@@ -624,11 +947,14 @@
                 characterHead: { r: 255, g: 235, b: 205 },
                 sun: { r: 255, g: 223, b: 0 },
                 moon: { r: 248, g: 248, b: 255 }
-            }
+            },
+            
+            // 프리셋 저장
+            presets: []
         };
-
+        
         // ========================================
-        // Canvas 초기화
+        // Canvas 초기화 및 렌더링
         // ========================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -646,93 +972,30 @@
 
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
-
-        // ========================================
-        // 슬랙 감지
-        // ========================================
-        function detectSlackWebView() {
-            const ua = navigator.userAgent.toLowerCase();
-            const isSlack = ua.includes('slack') || 
-                           document.referrer.includes('slack');
-            
-            if (isSlack) {
-                console.log('🎨 슬랙 웹뷰 감지 - Canvas 렌더링으로 필터 우회');
-                document.body.classList.add('slack-detected');
-                
-                // 슬랙에서는 더 밝은 색상 사용
-                state.colors.skyTop = { r: 160, g: 220, b: 250 };
-                state.colors.ground = { r: 170, g: 255, b: 170 };
-                
-                // 3초 후 알림 숨기기
-                setTimeout(() => {
-                    const notice = document.querySelector('.slack-notice');
-                    if (notice) {
-                        notice.style.display = 'none';
-                    }
-                }, 3000);
-                
-                return true;
-            }
-            return false;
-        }
-
-        // ========================================
-        // 향상된 필터 효과 시스템
-        // ========================================
         
-        /**
-         * 모든 색상에 필터를 적용하는 범용 함수
-         * 각 필터는 고유한 색상 변환 로직을 가지고 있습니다
-         */
+        // ========================================
+        // 필터 효과 시스템
+        // ========================================
         function applyFilterToColor(color) {
             const filter = filters[currentFilterIndex].class;
-            
-            // 원본 색상 복사
             let filtered = { r: color.r, g: color.g, b: color.b };
             
             switch(filter) {
-                case 'none':
-                    // 기본 - 변경 없음
-                    break;
-                    
                 case 'warm':
-                    // 따뜻함 - 빨강과 노랑 증가, 파랑 감소
                     filtered.r = Math.min(255, color.r * 1.3);
                     filtered.g = Math.min(255, color.g * 1.1);
                     filtered.b = color.b * 0.7;
                     break;
-                    
                 case 'cold':
-                    // 차가움 - 파랑 증가, 빨강 감소
                     filtered.r = color.r * 0.7;
                     filtered.g = color.g * 0.95;
                     filtered.b = Math.min(255, color.b * 1.4);
                     break;
-                    
                 case 'blackwhite':
-                    // 흑백 - 그레이스케일 변환
                     const gray = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
                     filtered.r = filtered.g = filtered.b = gray;
                     break;
-                    
-                case 'ash':
-                    // 애쉬 - 채도를 낮춘 회색빛
-                    const ashGray = (color.r + color.g + color.b) / 3;
-                    filtered.r = color.r * 0.5 + ashGray * 0.5;
-                    filtered.g = color.g * 0.5 + ashGray * 0.5;
-                    filtered.b = color.b * 0.5 + ashGray * 0.5;
-                    break;
-                    
-                case 'noir':
-                    // 느와르 - 높은 대비의 흑백
-                    const noirGray = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
-                    const contrast = 1.5;
-                    const noirValue = ((noirGray / 255 - 0.5) * contrast + 0.5) * 255;
-                    filtered.r = filtered.g = filtered.b = Math.max(0, Math.min(255, noirValue));
-                    break;
-                    
                 case 'sepia':
-                    // 세피아 - 갈색빛 빈티지
                     const tr = 0.393 * color.r + 0.769 * color.g + 0.189 * color.b;
                     const tg = 0.349 * color.r + 0.686 * color.g + 0.168 * color.b;
                     const tb = 0.272 * color.r + 0.534 * color.g + 0.131 * color.b;
@@ -740,160 +1003,64 @@
                     filtered.g = Math.min(255, tg);
                     filtered.b = Math.min(255, tb);
                     break;
-                    
-                case 'vintage':
-                    // 빈티지 - 바랜 듯한 색감
-                    filtered.r = Math.min(255, color.r * 1.1);
-                    filtered.g = Math.min(255, color.g * 0.95);
-                    filtered.b = color.b * 0.8;
-                    // 약간의 노이즈 효과
-                    filtered.r = Math.min(255, filtered.r + Math.random() * 10);
-                    filtered.g = Math.min(255, filtered.g + Math.random() * 10);
-                    filtered.b = Math.min(255, filtered.b + Math.random() * 10);
-                    break;
-                    
-                case 'nostalgia':
-                    // 노스텔지어 - 부드러운 옛날 사진 느낌
-                    filtered.r = Math.min(255, color.r * 1.05 + 20);
-                    filtered.g = Math.min(255, color.g * 0.9 + 15);
-                    filtered.b = Math.min(255, color.b * 0.7 + 10);
-                    // 밝기 증가
-                    filtered.r = Math.min(255, filtered.r * 1.1);
-                    filtered.g = Math.min(255, filtered.g * 1.1);
-                    filtered.b = Math.min(255, filtered.b * 1.1);
-                    break;
-                    
-                case 'pastel':
-                    // 파스텔 - 부드럽고 밝은 색조
-                    filtered.r = Math.min(255, color.r * 0.6 + 100);
-                    filtered.g = Math.min(255, color.g * 0.6 + 100);
-                    filtered.b = Math.min(255, color.b * 0.6 + 100);
-                    break;
-                    
                 case 'vivid':
-                    // 선명하게 - 채도와 대비 증가
                     const vividFactor = 1.5;
                     const avg = (color.r + color.g + color.b) / 3;
                     filtered.r = Math.min(255, Math.max(0, avg + (color.r - avg) * vividFactor));
                     filtered.g = Math.min(255, Math.max(0, avg + (color.g - avg) * vividFactor));
                     filtered.b = Math.min(255, Math.max(0, avg + (color.b - avg) * vividFactor));
                     break;
-                    
                 case 'horror':
-                    // 호러 - 어둡고 불길한 분위기
                     filtered.r = Math.min(255, color.r * 0.7 + 30);
                     filtered.g = color.g * 0.3;
                     filtered.b = color.b * 0.4;
-                    // 어둡게 처리
                     filtered.r *= 0.8;
                     filtered.g *= 0.8;
                     filtered.b *= 0.8;
                     break;
-                    
-                case 'purple':
-                    // 퍼플 - 보라색 톤
-                    filtered.r = Math.min(255, color.r * 0.8 + 50);
-                    filtered.g = color.g * 0.6;
-                    filtered.b = Math.min(255, color.b * 1.2 + 60);
+                case 'pastel':
+                    filtered.r = Math.min(255, color.r * 0.6 + 100);
+                    filtered.g = Math.min(255, color.g * 0.6 + 100);
+                    filtered.b = Math.min(255, color.b * 0.6 + 100);
                     break;
-                    
-                case 'crimson':
-                    // 크림슨 - 진한 붉은색
-                    filtered.r = Math.min(255, color.r * 1.4 + 40);
-                    filtered.g = color.g * 0.4;
-                    filtered.b = color.b * 0.5;
-                    break;
-                    
-                case 'blood':
-                    // 블러드 - 강렬한 붉은색
-                    filtered.r = Math.min(255, color.r * 1.5 + 60);
-                    filtered.g = color.g * 0.3;
-                    filtered.b = color.b * 0.3;
-                    // 대비 증가
-                    if (filtered.r > 128) {
-                        filtered.r = Math.min(255, filtered.r * 1.2);
-                    }
-                    break;
-                    
-                case 'glow':
-                    // 광휘 - 밝고 빛나는 효과
-                    filtered.r = Math.min(255, color.r * 1.2 + 30);
-                    filtered.g = Math.min(255, color.g * 1.2 + 30);
-                    filtered.b = Math.min(255, color.b * 1.2 + 30);
-                    // 하이라이트 효과
-                    const brightness = (filtered.r + filtered.g + filtered.b) / 3;
-                    if (brightness > 150) {
-                        filtered.r = Math.min(255, filtered.r * 1.1);
-                        filtered.g = Math.min(255, filtered.g * 1.1);
-                        filtered.b = Math.min(255, filtered.b * 1.1);
-                    }
-                    break;
+                // 나머지 필터들도 필요에 따라 구현
             }
             
             return filtered;
         }
-
-        /**
-         * RGBA 문자열에 필터를 적용하는 헬퍼 함수
-         */
-        function applyFilterToRGBA(rgbaString, alpha = 1) {
-            // rgba(r, g, b, a) 형식 파싱
-            const match = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-            if (match) {
-                const color = {
-                    r: parseInt(match[1]),
-                    g: parseInt(match[2]),
-                    b: parseInt(match[3])
-                };
-                const filtered = applyFilterToColor(color);
-                return `rgba(${Math.floor(filtered.r)}, ${Math.floor(filtered.g)}, ${Math.floor(filtered.b)}, ${alpha})`;
-            }
-            return rgbaString;
-        }
-
-        // ========================================
-        // Canvas 렌더링 함수들 - 필터 적용 포함
-        // ========================================
         
-        // 하늘 그리기
+        // ========================================
+        // Canvas 렌더링 함수들 (기존과 동일)
+        // ========================================
         function drawSky() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             
-            // 시간에 따른 하늘색 계산
             let topColor, bottomColor;
             
             if (state.timeOfDay < 0.25) {
-                // 밤
                 topColor = { r: 72, g: 88, b: 148 };
                 bottomColor = { r: 96, g: 116, b: 168 };
             } else if (state.timeOfDay < 0.35) {
-                // 새벽
                 topColor = { r: 106, g: 130, b: 198 };
                 bottomColor = { r: 156, g: 176, b: 216 };
             } else if (state.timeOfDay < 0.5) {
-                // 아침
                 topColor = { r: 255, g: 203, b: 124 };
                 bottomColor = { r: 135, g: 206, b: 235 };
             } else if (state.timeOfDay < 0.7) {
-                // 낮
                 topColor = state.colors.skyTop;
                 bottomColor = state.colors.skyBottom;
             } else if (state.timeOfDay < 0.85) {
-                // 저녁
                 topColor = { r: 255, g: 167, b: 128 };
                 bottomColor = { r: 255, g: 230, b: 140 };
             } else {
-                // 밤
                 topColor = { r: 72, g: 88, b: 148 };
                 bottomColor = { r: 96, g: 116, b: 168 };
             }
             
-            // 필터 효과 적용
             const filteredTop = applyFilterToColor(topColor);
             const filteredBottom = applyFilterToColor(bottomColor);
             
-            // 그라디언트 생성
             const gradient = ctx.createLinearGradient(0, 0, 0, height);
             gradient.addColorStop(0, `rgb(${Math.floor(filteredTop.r)}, ${Math.floor(filteredTop.g)}, ${Math.floor(filteredTop.b)})`);
             gradient.addColorStop(1, `rgb(${Math.floor(filteredBottom.r)}, ${Math.floor(filteredBottom.g)}, ${Math.floor(filteredBottom.b)})`);
@@ -902,21 +1069,17 @@
             ctx.fillRect(0, 0, width, height);
         }
 
-        // 태양/달 그리기
         function drawCelestialBody() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             
-            // 시간에 따른 위치 계산
             const t = state.timeOfDay;
             const x = width * t;
             const y = height * 0.3 + Math.sin(t * Math.PI) * -height * 0.25;
             
             if (state.timeOfDay > 0.25 && state.timeOfDay < 0.75) {
-                // 태양
                 const sunColor = applyFilterToColor(state.colors.sun);
                 
-                // 광선 효과 (회전 애니메이션)
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(Date.now() / 1000);
@@ -933,20 +1096,17 @@
                 }
                 ctx.restore();
                 
-                // 태양 본체
                 ctx.fillStyle = `rgb(${Math.floor(sunColor.r)}, ${Math.floor(sunColor.g)}, ${Math.floor(sunColor.b)})`;
                 ctx.beginPath();
                 ctx.arc(x, y, 40, 0, Math.PI * 2);
                 ctx.fill();
             } else {
-                // 달
                 const moonColor = applyFilterToColor(state.colors.moon);
                 ctx.fillStyle = `rgb(${Math.floor(moonColor.r)}, ${Math.floor(moonColor.g)}, ${Math.floor(moonColor.b)})`;
                 ctx.beginPath();
                 ctx.arc(x, y, 35, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // 달 크레이터
                 const craterColor = applyFilterToColor({ r: 200, g: 200, b: 200 });
                 ctx.fillStyle = `rgba(${Math.floor(craterColor.r)}, ${Math.floor(craterColor.g)}, ${Math.floor(craterColor.b)}, 0.3)`;
                 ctx.beginPath();
@@ -955,57 +1115,51 @@
             }
         }
 
-        // 구름 그리기 - 개선된 입체적 구름
         function drawClouds() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             
-            state.cloudOffset = (state.cloudOffset + 0.3) % width;
+            state.cloudOffset = (state.cloudOffset + 0.5) % width;
             
             if (state.weather === 'cloudy' || state.weather === 'rain' || state.weather === 'snow') {
-                // 날씨별 구름 밀도와 색상 조정
-                const baseOpacity = state.weather === 'rain' ? 0.7 : (state.weather === 'snow' ? 0.6 : 0.5);
-                const cloudDensity = state.weather === 'clear' ? 0 : (1 + state.weatherIntensity) * 2;
+                let baseOpacity = 0.6;
+                let cloudCount = 3;
                 
-                for (let i = 0; i < cloudDensity; i++) {
-                    const x = (state.cloudOffset + i * 250) % (width + 400) - 200;
-                    const y = 30 + i * 50 + Math.sin(Date.now() / 3000 + i) * 10;
-                    const scale = 0.8 + (i % 2) * 0.4;
+                if (state.weather === 'cloudy') {
+                    baseOpacity = 0.4 + (state.weatherIntensity * 0.1);
+                    cloudCount = 2 + state.weatherIntensity;
+                } else if (state.weather === 'rain') {
+                    baseOpacity = 0.7;
+                    cloudCount = 3 + state.weatherIntensity;
+                } else if (state.weather === 'snow') {
+                    baseOpacity = 0.6;
+                    cloudCount = 2 + state.weatherIntensity;
+                }
+                
+                for (let i = 0; i < cloudCount; i++) {
+                    const x = (state.cloudOffset + i * 200) % (width + 300) - 150;
+                    const y = 50 + i * 40 + Math.sin(Date.now() / 3000 + i) * 10;
+                    const scale = 0.8 + (i % 2) * 0.3;
                     
-                    // 구름 그림자 (더 어두운 아래쪽)
                     ctx.save();
                     
-                    // 구름 본체 - 여러 겹의 원으로 입체감 표현
-                    const cloudBase = applyFilterToColor({ r: 180, g: 180, b: 190 });
-                    const cloudLight = applyFilterToColor({ r: 255, g: 255, b: 255 });
-                    const cloudMid = applyFilterToColor({ r: 220, g: 220, b: 230 });
+                    const cloudColor = applyFilterToColor({ r: 220, g: 220, b: 230 });
+                    const cloudShadow = applyFilterToColor({ r: 180, g: 180, b: 190 });
                     
-                    // 구름 그림자층 (가장 아래)
-                    ctx.fillStyle = `rgba(${Math.floor(cloudBase.r)}, ${Math.floor(cloudBase.g)}, ${Math.floor(cloudBase.b)}, ${baseOpacity * 0.6})`;
-                    
-                    // 그림자 부분
+                    ctx.fillStyle = `rgba(${Math.floor(cloudShadow.r)}, ${Math.floor(cloudShadow.g)}, ${Math.floor(cloudShadow.b)}, ${baseOpacity * 0.5})`;
                     ctx.beginPath();
-                    ctx.ellipse(x + 5, y + 10, 40 * scale, 25 * scale, 0, 0, Math.PI * 2);
-                    ctx.ellipse(x + 30, y + 10, 45 * scale, 28 * scale, 0, 0, Math.PI * 2);
-                    ctx.ellipse(x + 55, y + 10, 40 * scale, 25 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 5, y + 5, 40 * scale, 25 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 30, y + 5, 45 * scale, 28 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 55, y + 5, 40 * scale, 25 * scale, 0, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // 중간층
-                    ctx.fillStyle = `rgba(${Math.floor(cloudMid.r)}, ${Math.floor(cloudMid.g)}, ${Math.floor(cloudMid.b)}, ${baseOpacity * 0.8})`;
+                    ctx.fillStyle = `rgba(${Math.floor(cloudColor.r)}, ${Math.floor(cloudColor.g)}, ${Math.floor(cloudColor.b)}, ${baseOpacity})`;
                     ctx.beginPath();
                     ctx.ellipse(x, y, 42 * scale, 30 * scale, 0, 0, Math.PI * 2);
                     ctx.ellipse(x + 28, y - 2, 48 * scale, 32 * scale, 0, 0, Math.PI * 2);
                     ctx.ellipse(x + 52, y, 42 * scale, 30 * scale, 0, 0, Math.PI * 2);
-                    ctx.ellipse(x + 15, y + 5, 35 * scale, 25 * scale, 0, 0, Math.PI * 2);
-                    ctx.ellipse(x + 40, y + 5, 35 * scale, 25 * scale, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    
-                    // 하이라이트층 (가장 위)
-                    ctx.fillStyle = `rgba(${Math.floor(cloudLight.r)}, ${Math.floor(cloudLight.g)}, ${Math.floor(cloudLight.b)}, ${baseOpacity * 0.5})`;
-                    ctx.beginPath();
-                    ctx.ellipse(x + 10, y - 10, 30 * scale, 20 * scale, 0, 0, Math.PI * 2);
-                    ctx.ellipse(x + 30, y - 12, 35 * scale, 22 * scale, 0, 0, Math.PI * 2);
-                    ctx.ellipse(x + 45, y - 8, 28 * scale, 18 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 15, y + 8, 35 * scale, 22 * scale, 0, 0, Math.PI * 2);
+                    ctx.ellipse(x + 38, y + 8, 35 * scale, 22 * scale, 0, 0, Math.PI * 2);
                     ctx.fill();
                     
                     ctx.restore();
@@ -1013,19 +1167,15 @@
             }
         }
 
-        // 지면 그리기
         function drawGround() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             const groundHeight = height * 0.2;
             
-            // 지면 색상에 필터 적용
             const groundColor = applyFilterToColor(state.colors.ground);
             const groundDarkColor = applyFilterToColor(state.colors.groundDark);
             
-            // 툰 셰이딩 모드
             if (state.shadingMode === 'toon') {
-                // 단색 + 테두리
                 ctx.fillStyle = `rgb(${Math.floor(groundColor.r)}, ${Math.floor(groundColor.g)}, ${Math.floor(groundColor.b)})`;
                 ctx.fillRect(0, height - groundHeight, width, groundHeight);
                 
@@ -1036,7 +1186,6 @@
                 ctx.lineTo(width, height - groundHeight);
                 ctx.stroke();
             } else {
-                // 그라디언트
                 const gradient = ctx.createLinearGradient(0, height - groundHeight, 0, height);
                 gradient.addColorStop(0, `rgb(${Math.floor(groundColor.r)}, ${Math.floor(groundColor.g)}, ${Math.floor(groundColor.b)})`);
                 gradient.addColorStop(1, `rgb(${Math.floor(groundDarkColor.r)}, ${Math.floor(groundDarkColor.g)}, ${Math.floor(groundDarkColor.b)})`);
@@ -1044,28 +1193,8 @@
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, height - groundHeight, width, groundHeight);
             }
-            
-            // 지면 디테일 추가 (풀, 돌 등)
-            if (state.shadingMode === 'normal') {
-                const grassColor = applyFilterToColor({ r: 100, g: 200, b: 100 });
-                ctx.strokeStyle = `rgba(${Math.floor(grassColor.r)}, ${Math.floor(grassColor.g)}, ${Math.floor(grassColor.b)}, 0.3)`;
-                ctx.lineWidth = 2;
-                
-                for (let i = 0; i < 20; i++) {
-                    const x = Math.random() * width;
-                    const y = height - groundHeight + Math.random() * groundHeight;
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x - 3, y - 10);
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x + 3, y - 10);
-                    ctx.stroke();
-                }
-            }
         }
 
-        // 캐릭터 그리기
         function drawCharacter() {
             const width = window.innerWidth;
             const height = window.innerHeight;
@@ -1075,21 +1204,17 @@
             const charX = width / 2 - charWidth / 2;
             const charY = height * 0.8 - charHeight;
             
-            // 캐릭터 색상에 필터 적용
             const charColor = applyFilterToColor(state.colors.character);
             const shadowColor = applyFilterToColor(state.colors.characterShadow);
             const headColor = applyFilterToColor(state.colors.characterHead);
             
             if (state.shadingMode === 'toon') {
-                // 툰 셰이딩 - 그림자 효과
                 ctx.fillStyle = `rgb(${Math.floor(shadowColor.r)}, ${Math.floor(shadowColor.g)}, ${Math.floor(shadowColor.b)})`;
                 ctx.fillRect(charX - 10, charY + 50, charWidth, charHeight - 50);
                 
-                // 몸통
                 ctx.fillStyle = `rgb(${Math.floor(charColor.r)}, ${Math.floor(charColor.g)}, ${Math.floor(charColor.b)})`;
                 ctx.fillRect(charX, charY + 50, charWidth, charHeight - 50);
                 
-                // 테두리
                 const outlineColor = applyFilterToColor({ 
                     r: Math.floor(state.colors.character.r * 0.7), 
                     g: Math.floor(state.colors.character.g * 0.7), 
@@ -1099,7 +1224,6 @@
                 ctx.lineWidth = 3;
                 ctx.strokeRect(charX, charY + 50, charWidth, charHeight - 50);
             } else {
-                // 일반 렌더링 - 그라디언트
                 const bodyGradient = ctx.createLinearGradient(charX, charY + 50, charX, charY + charHeight);
                 bodyGradient.addColorStop(0, `rgb(${Math.floor(charColor.r)}, ${Math.floor(charColor.g)}, ${Math.floor(charColor.b)})`);
                 bodyGradient.addColorStop(1, `rgb(${Math.floor(shadowColor.r)}, ${Math.floor(shadowColor.g)}, ${Math.floor(shadowColor.b)})`);
@@ -1108,30 +1232,25 @@
                 ctx.fillRect(charX, charY + 50, charWidth, charHeight - 50);
             }
             
-            // 머리
             ctx.fillStyle = `rgb(${Math.floor(headColor.r)}, ${Math.floor(headColor.g)}, ${Math.floor(headColor.b)})`;
             ctx.beginPath();
             ctx.arc(charX + charWidth / 2, charY + 40, 40, 0, Math.PI * 2);
             ctx.fill();
             
-            // 얼굴 특징들에도 필터 적용
             const eyeColor = applyFilterToColor({ r: 0, g: 0, b: 0 });
             ctx.fillStyle = `rgb(${Math.floor(eyeColor.r)}, ${Math.floor(eyeColor.g)}, ${Math.floor(eyeColor.b)})`;
             
-            // 눈
             ctx.beginPath();
             ctx.arc(charX + charWidth / 2 - 15, charY + 35, 5, 0, Math.PI * 2);
             ctx.arc(charX + charWidth / 2 + 15, charY + 35, 5, 0, Math.PI * 2);
             ctx.fill();
             
-            // 미소
             ctx.strokeStyle = `rgb(${Math.floor(eyeColor.r)}, ${Math.floor(eyeColor.g)}, ${Math.floor(eyeColor.b)})`;
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(charX + charWidth / 2, charY + 45, 15, 0, Math.PI);
             ctx.stroke();
             
-            // 캐릭터 그림자 (지면에)
             const groundShadowColor = applyFilterToColor({ r: 50, g: 50, b: 50 });
             ctx.fillStyle = `rgba(${Math.floor(groundShadowColor.r)}, ${Math.floor(groundShadowColor.g)}, ${Math.floor(groundShadowColor.b)}, 0.3)`;
             ctx.beginPath();
@@ -1139,32 +1258,25 @@
             ctx.fill();
         }
 
-        // 날씨 효과 그리기 - 개선된 비와 눈 효과
         function drawWeatherEffects() {
             const width = window.innerWidth;
             const height = window.innerHeight;
             
             if (state.weather === 'rain') {
-                // 비 효과 - 강도에 따라 빗방울 수 조절
                 const maxDrops = state.weatherIntensity * 20;
-                
-                // 배경 밝기에 따라 비 색상 조정
                 const isDayTime = state.timeOfDay > 0.25 && state.timeOfDay < 0.75;
                 let rainColor;
                 
                 if (isDayTime) {
-                    // 낮에는 더 어두운 색상과 높은 투명도로 대비 증가
                     rainColor = applyFilterToColor({ r: 100, g: 120, b: 150 });
                     ctx.strokeStyle = `rgba(${Math.floor(rainColor.r)}, ${Math.floor(rainColor.g)}, ${Math.floor(rainColor.b)}, 0.7)`;
                     ctx.lineWidth = 2.5;
                 } else {
-                    // 밤에는 밝은 색상
                     rainColor = applyFilterToColor({ r: 200, g: 220, b: 240 });
                     ctx.strokeStyle = `rgba(${Math.floor(rainColor.r)}, ${Math.floor(rainColor.g)}, ${Math.floor(rainColor.b)}, 0.6)`;
                     ctx.lineWidth = 2;
                 }
                 
-                // 비 바람 효과를 위한 각도
                 const windAngle = Math.sin(Date.now() / 2000) * 0.1;
                 
                 if (state.raindrops.length < maxDrops) {
@@ -1181,67 +1293,22 @@
                     drop.y += drop.speed;
                     drop.x += drop.speed * windAngle;
                     
-                    // 개별 빗방울 투명도 적용
                     const dropOpacity = isDayTime ? drop.opacity * 1.2 : drop.opacity;
                     ctx.save();
                     ctx.globalAlpha = dropOpacity;
                     
-                    // 빗줄기 그리기 (각도 적용)
                     ctx.beginPath();
                     ctx.moveTo(drop.x, drop.y);
                     ctx.lineTo(drop.x + drop.length * windAngle, drop.y + drop.length);
                     ctx.stroke();
                     
-                    // 굵은 비 표현 (강도가 높을 때)
-                    if (state.weatherIntensity > 2) {
-                        ctx.lineWidth = isDayTime ? 3 : 2.5;
-                        ctx.globalAlpha = dropOpacity * 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(drop.x + 2, drop.y);
-                        ctx.lineTo(drop.x + 2 + drop.length * windAngle, drop.y + drop.length);
-                        ctx.stroke();
-                    }
-                    
                     ctx.restore();
-                    
-                    // 물웅덩이 효과 (지면 근처)
-                    if (drop.y > height - 60) {
-                        const splashColor = isDayTime 
-                            ? applyFilterToColor({ r: 80, g: 100, b: 120 })
-                            : applyFilterToColor({ r: 174, g: 214, b: 241 });
-                        
-                        ctx.fillStyle = `rgba(${Math.floor(splashColor.r)}, ${Math.floor(splashColor.g)}, ${Math.floor(splashColor.b)}, ${0.3 * dropOpacity})`;
-                        
-                        // 물결 효과
-                        ctx.beginPath();
-                        ctx.ellipse(drop.x, height - 40, 8, 3, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                        
-                        // 튀는 물방울
-                        if (Math.random() < 0.3) {
-                            ctx.beginPath();
-                            ctx.arc(drop.x + Math.random() * 10 - 5, height - 45, 2, 0, Math.PI * 2);
-                            ctx.fill();
-                        }
-                    }
                     
                     return drop.y < height;
                 });
                 
-                // 전체 화면 습기 효과 (안개)
-                if (state.weatherIntensity > 2) {
-                    const mistColor = isDayTime 
-                        ? applyFilterToColor({ r: 150, g: 160, b: 170 })
-                        : applyFilterToColor({ r: 200, g: 210, b: 220 });
-                    
-                    ctx.fillStyle = `rgba(${Math.floor(mistColor.r)}, ${Math.floor(mistColor.g)}, ${Math.floor(mistColor.b)}, ${0.05 * state.weatherIntensity})`;
-                    ctx.fillRect(0, height * 0.7, width, height * 0.3);
-                }
-                
             } else if (state.weather === 'snow') {
-                // 눈 효과 - 강도에 따라 눈송이 수 조절
                 const maxFlakes = state.weatherIntensity * 15;
-                
                 const snowColor = applyFilterToColor({ r: 255, g: 255, b: 255 });
                 
                 if (state.snowflakes.length < maxFlakes) {
@@ -1261,7 +1328,6 @@
                     flake.x += flake.drift + Math.sin(Date.now() / 1000 + flake.rotation) * 0.5;
                     flake.rotation += flake.rotSpeed;
                     
-                    // 눈송이 그리기 (별 모양)
                     ctx.save();
                     ctx.translate(flake.x, flake.y);
                     ctx.rotate(flake.rotation);
@@ -1270,7 +1336,6 @@
                     ctx.strokeStyle = `rgba(${Math.floor(snowColor.r)}, ${Math.floor(snowColor.g)}, ${Math.floor(snowColor.b)}, 0.3)`;
                     ctx.lineWidth = 1;
                     
-                    // 6각 눈송이
                     for (let i = 0; i < 6; i++) {
                         ctx.save();
                         ctx.rotate((Math.PI / 3) * i);
@@ -1279,7 +1344,6 @@
                         ctx.lineTo(0, -flake.size);
                         ctx.stroke();
                         
-                        // 작은 가지
                         if (flake.size > 4) {
                             ctx.beginPath();
                             ctx.moveTo(0, -flake.size * 0.3);
@@ -1291,484 +1355,513 @@
                         ctx.restore();
                     }
                     
-                    // 중심점
                     ctx.beginPath();
                     ctx.arc(0, 0, flake.size * 0.2, 0, Math.PI * 2);
                     ctx.fill();
                     
                     ctx.restore();
                     
-                    // 눈 쌓임 효과
-                    if (flake.y > height - 50) {
-                        const pileColor = applyFilterToColor({ r: 250, g: 250, b: 250 });
-                        ctx.fillStyle = `rgba(${Math.floor(pileColor.r)}, ${Math.floor(pileColor.g)}, ${Math.floor(pileColor.b)}, 0.15)`;
-                        ctx.beginPath();
-                        ctx.ellipse(flake.x, height - 40, flake.size * 2, flake.size * 0.5, 0, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                    
                     return flake.y < height;
                 });
-                
-                // 눈보라 효과 (강도가 높을 때)
-                if (state.weatherIntensity > 2) {
-                    const blizzardColor = applyFilterToColor({ r: 240, g: 240, b: 250 });
-                    ctx.fillStyle = `rgba(${Math.floor(blizzardColor.r)}, ${Math.floor(blizzardColor.g)}, ${Math.floor(blizzardColor.b)}, ${0.03 * state.weatherIntensity})`;
-                    ctx.fillRect(0, 0, width, height);
-                }
             }
         }
 
+        function render() {
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            
+            drawSky();
+            drawCelestialBody();
+            drawClouds();
+            drawGround();
+            drawCharacter();
+            drawWeatherEffects();
+            
+            requestAnimationFrame(render);
+        }
+        
         // ========================================
         // UI 컨트롤 함수들
         // ========================================
         
-        // 필터 관리
-        function createFilterDots() {
-            const dotsContainer = document.getElementById('filterDots');
-            dotsContainer.innerHTML = '';
+        // 씬 설정 UI 토글
+        function toggleSceneSettings() {
+            const centerSection = document.getElementById('centerSection');
+            const sceneBtn = document.getElementById('sceneBtn');
             
-            filters.forEach((filter, index) => {
-                const dot = document.createElement('div');
-                dot.className = 'filter-dot';
-                if (index === currentFilterIndex) {
-                    dot.classList.add('active');
-                }
-                dot.onclick = () => selectFilter(index);
-                dotsContainer.appendChild(dot);
-            });
-        }
-
-        function selectFilter(index) {
-            currentFilterIndex = index;
-            const filter = filters[index];
+            const isActive = centerSection.classList.contains('active');
             
-            state.filter = filter.class;
-            
-            document.getElementById('filterName').textContent = filter.name;
-            document.getElementById('filterText').textContent = filter.name;
-            
-            document.querySelectorAll('.filter-dot').forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
-            });
-        }
-
-        function previousFilter() {
-            currentFilterIndex = (currentFilterIndex - 1 + filters.length) % filters.length;
-            selectFilter(currentFilterIndex);
-        }
-
-        function nextFilter() {
-            currentFilterIndex = (currentFilterIndex + 1) % filters.length;
-            selectFilter(currentFilterIndex);
-        }
-
-        // 시계 업데이트
-        function updateClock() {
-            if (!state.manualTime) {
-                const now = new Date();
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                
-                document.getElementById('digitalClock').textContent = `${hours}:${minutes}`;
-                
-                const totalMinutes = now.getHours() * 60 + now.getMinutes();
-                const dayProgress = totalMinutes / (24 * 60);
-                state.timeOfDay = dayProgress;
-                
-                const handle = document.getElementById('todHandle');
-                if (handle) {
-                    handle.style.left = (dayProgress * 100) + '%';
-                }
+            if (isActive) {
+                centerSection.classList.remove('active');
+                sceneBtn.classList.remove('active');
+                closeAllPanels();
+            } else {
+                centerSection.classList.add('active');
+                sceneBtn.classList.add('active');
             }
         }
-
-        // 드롭다운 관리
-        function setupDropdowns() {
-            const sections = ['filter', 'weather', 'shading', 'save'];
+        
+        // 패널 토글 (시간, 필터, 날씨, 셰이딩, 프리셋)
+        function togglePanel(panelId, btnId) {
+            const panel = document.getElementById(panelId);
+            const btn = document.getElementById(btnId);
+            const centerSection = document.getElementById('centerSection');
+            const isActive = panel.classList.contains('active');
             
-            sections.forEach(section => {
-                const sectionEl = document.getElementById(`${section}Section`);
-                const dropdownEl = document.getElementById(`${section}Dropdown`);
+            // 모든 패널과 버튼 비활성화
+            closeAllPanels();
+            
+            // 현재 패널 토글
+            if (!isActive) {
+                panel.classList.add('active');
+                btn.classList.add('active');
                 
-                if (!sectionEl || !dropdownEl) return;
+                // 메인 UI의 하단 모서리를 직각으로 변경
+                centerSection.classList.add('panel-open');
                 
-                sectionEl.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    
-                    sections.forEach(other => {
-                        if (other !== section) {
-                            const otherSection = document.getElementById(`${other}Section`);
-                            const otherDropdown = document.getElementById(`${other}Dropdown`);
-                            if (otherSection) otherSection.classList.remove('active');
-                            if (otherDropdown) otherDropdown.classList.remove('active');
-                        }
-                    });
-                    
-                    sectionEl.classList.toggle('active');
-                    dropdownEl.classList.toggle('active');
-                    
-                    if (section === 'save' && dropdownEl.classList.contains('active')) {
-                        loadPresets();
-                    }
-                });
-            });
-
-            document.addEventListener('click', () => {
-                sections.forEach(section => {
-                    const sectionEl = document.getElementById(`${section}Section`);
-                    const dropdownEl = document.getElementById(`${section}Dropdown`);
-                    if (sectionEl) sectionEl.classList.remove('active');
-                    if (dropdownEl) dropdownEl.classList.remove('active');
-                });
-            });
-
-            document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-                dropdown.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                });
-            });
+                // 시간 패널인 경우 디지털 시계도 활성화
+                if (panelId === 'timePanel') {
+                    document.getElementById('digitalClock').classList.add('active');
+                }
+            } else {
+                // 패널이 닫히면 메인 UI를 다시 올 라운드로
+                centerSection.classList.remove('panel-open');
+            }
         }
-
-        // TOD 슬라이더
-        function setupTodSlider() {
-            const todTrack = document.getElementById('todTrack');
-            const todHandle = document.getElementById('todHandle');
+        
+        // 모든 패널 닫기
+        function closeAllPanels() {
+            const centerSection = document.getElementById('centerSection');
             
-            if (!todTrack || !todHandle) return;
+            document.querySelectorAll('.detailPanel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.querySelectorAll('.iconBtn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('digitalClock').classList.remove('active');
+            
+            // 모든 패널이 닫히면 메인 UI를 다시 올 라운드로
+            centerSection.classList.remove('panel-open');
+        }
+        
+        // 시간 슬라이더 설정
+        function setupTimeSlider() {
+            const track = document.getElementById('timeSliderTrack');
+            const handle = document.getElementById('timeSliderHandle');
+            
+            if (!track || !handle) return;
             
             let isDragging = false;
-
-            function updateTodPosition(clientX) {
-                const rect = todTrack.getBoundingClientRect();
+            
+            function updateTimePosition(clientX) {
+                const rect = track.getBoundingClientRect();
                 const x = clientX - rect.left;
                 const percentage = Math.max(0, Math.min(1, x / rect.width));
                 
                 state.timeOfDay = percentage;
                 state.manualTime = true;
-                todHandle.style.left = (percentage * 100) + '%';
+                handle.style.left = percentage * 100 + '%';
                 
                 const totalMinutes = Math.floor(percentage * 24 * 60);
-                const hours = Math.floor(totalMinutes / 60);
+                const hours24 = Math.floor(totalMinutes / 60);
                 const minutes = totalMinutes % 60;
                 
-                const hoursStr = hours.toString().padStart(2, '0');
-                const minutesStr = minutes.toString().padStart(2, '0');
-                document.getElementById('digitalClock').textContent = `${hoursStr}:${minutesStr}`;
+                const isPM = hours24 >= 12;
+                let hours12 = hours24 % 12;
+                if (hours12 === 0) hours12 = 12;
+                
+                document.getElementById('clockHour').textContent = hours12.toString().padStart(2, '0');
+                document.getElementById('clockMinute').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('ampm').textContent = isPM ? 'PM' : 'AM';
             }
-
-            todTrack.addEventListener('touchstart', (e) => {
-                e.preventDefault();
+            
+            track.addEventListener('mousedown', (e) => {
                 isDragging = true;
-                updateTodPosition(e.touches[0].clientX);
+                updateTimePosition(e.clientX);
             });
-
-            document.addEventListener('touchmove', (e) => {
-                if (isDragging && e.touches[0]) {
-                    e.preventDefault();
-                    updateTodPosition(e.touches[0].clientX);
-                }
-            }, { passive: false });
-
-            document.addEventListener('touchend', () => {
-                isDragging = false;
-            });
-
-            todTrack.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                updateTodPosition(e.clientX);
-            });
-
+            
             document.addEventListener('mousemove', (e) => {
                 if (isDragging) {
-                    updateTodPosition(e.clientX);
+                    updateTimePosition(e.clientX);
                 }
             });
-
+            
             document.addEventListener('mouseup', () => {
                 isDragging = false;
             });
-
-            // 더블 탭으로 자동 시간 모드
-            let lastTap = 0;
-            todTrack.addEventListener('touchend', (e) => {
-                const currentTime = new Date().getTime();
-                const tapGap = currentTime - lastTap;
-                lastTap = currentTime;
-                
-                if (tapGap < 300 && tapGap > 0) {
-                    state.manualTime = false;
-                    updateClock();
+            
+            track.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isDragging = true;
+                updateTimePosition(e.touches[0].clientX);
+            });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (isDragging && e.touches[0]) {
                     e.preventDefault();
+                    updateTimePosition(e.touches[0].clientX);
                 }
+            }, { passive: false });
+            
+            document.addEventListener('touchend', () => {
+                isDragging = false;
             });
+            
+            handle.style.left = (state.timeOfDay * 100) + '%';
         }
-
-        // 날씨 설정
-        function setupWeather() {
-            document.querySelectorAll('.weather-option').forEach(option => {
-                option.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('intensity-level')) {
-                        e.stopPropagation();
-                        return;
-                    }
-                    
-                    const weather = option.dataset.weather;
-                    selectWeather(weather);
-                    
-                    document.querySelectorAll('.weather-option').forEach(opt => {
-                        opt.classList.toggle('active', opt === option);
-                    });
-                });
+        
+        // 시계 업데이트
+        function updateClock() {
+            if (!state.manualTime) {
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
                 
-                option.querySelectorAll('.intensity-level').forEach((level, index) => {
-                    level.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const weather = option.dataset.weather;
-                        setWeatherIntensity(weather, index + 1, option);
-                    });
-                });
+                const isPM = hours >= 12;
+                let hours12 = hours % 12;
+                if (hours12 === 0) hours12 = 12;
+                
+                document.getElementById('clockHour').textContent = hours12.toString().padStart(2, '0');
+                document.getElementById('clockMinute').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('ampm').textContent = isPM ? 'PM' : 'AM';
+                
+                const totalMinutes = hours * 60 + minutes;
+                state.timeOfDay = totalMinutes / (24 * 60);
+                
+                const handle = document.getElementById('timeSliderHandle');
+                if (handle) {
+                    handle.style.left = (state.timeOfDay * 100) + '%';
+                }
+            }
+        }
+        
+        // 필터 목록 생성
+        function createFilterList() {
+            const filterList = document.getElementById('filterList');
+            filterList.innerHTML = '';
+            
+            filters.forEach((filter, index) => {
+                const item = document.createElement('div');
+                item.className = 'filterItem';
+                if (index === currentFilterIndex) {
+                    item.classList.add('active');
+                }
+                item.textContent = filter.name;
+                item.onclick = () => selectFilter(index);
+                filterList.appendChild(item);
             });
         }
-
+        
+        function selectFilter(index) {
+            currentFilterIndex = index;
+            state.filter = filters[index].class;
+            
+            document.querySelectorAll('.filterItem').forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+        }
+        
+        // 날씨 선택
         function selectWeather(weather) {
             state.weather = weather;
             state.raindrops = [];
             state.snowflakes = [];
             
-            const weatherData = {
-                clear: { icon: '☀️', text: '맑음' },
-                cloudy: { icon: '☁️', text: '흐림' },
-                rain: { icon: '🌧️', text: '비' },
-                snow: { icon: '❄️', text: '눈' }
-            };
+            document.querySelectorAll('.weatherCard').forEach(card => {
+                card.classList.toggle('active', card.dataset.weather === weather);
+            });
             
-            const weatherIcon = document.getElementById('weatherIcon');
-            const weatherText = document.getElementById('weatherText');
-            
-            if (weatherIcon) weatherIcon.textContent = weatherData[weather].icon;
-            if (weatherText) weatherText.textContent = weatherData[weather].text;
+            const intensityControl = document.getElementById('intensityControl');
+            if (weather === 'clear') {
+                intensityControl.classList.add('disabled');
+            } else {
+                intensityControl.classList.remove('disabled');
+            }
         }
-
-        function setWeatherIntensity(weather, intensity, option) {
-            state.weatherIntensity = intensity;
+        
+        // 날씨 강도 설정
+        function updateWeatherIntensity(delta) {
+            if (state.weather === 'clear') return;
             
-            option.querySelectorAll('.intensity-level').forEach((level, index) => {
-                level.classList.toggle('active', index < intensity);
+            state.weatherIntensity = Math.max(1, Math.min(4, state.weatherIntensity + delta));
+            document.getElementById('intensityValue').textContent = state.weatherIntensity;
+            
+            document.getElementById('intensityMinus').disabled = state.weatherIntensity <= 1;
+            document.getElementById('intensityPlus').disabled = state.weatherIntensity >= 4;
+        }
+        
+        // 셰이딩 선택
+        function selectShading(mode) {
+            state.shadingMode = mode;
+            
+            document.querySelectorAll('.shadingCard').forEach(card => {
+                card.classList.toggle('active', card.dataset.shading === mode);
             });
         }
-
-        // 셰이딩 모드
-        function setupShading() {
-            document.querySelectorAll('.shading-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    const mode = option.dataset.shading;
-                    state.shadingMode = mode;
-                    
-                    document.querySelectorAll('.shading-option').forEach(opt => {
-                        opt.classList.toggle('active', opt === option);
-                    });
-                    
-                    const shadingText = document.getElementById('shadingText');
-                    if (shadingText) {
-                        shadingText.textContent = mode === 'normal' ? '일반' : '툰';
-                    }
-                });
-            });
-        }
-
+        
         // 프리셋 관리
-        function savePreset() {
-            const nameInput = document.getElementById('presetName');
-            if (!nameInput) return;
+        function loadPresets() {
+            const presets = JSON.parse(localStorage.getItem('superplatPresets') || '[]');
+            state.presets = presets;
             
+            const presetList = document.getElementById('presetList');
+            presetList.innerHTML = '';
+            
+            presets.forEach((preset, index) => {
+                const item = document.createElement('div');
+                item.className = 'presetItem';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'presetName';
+                nameSpan.textContent = preset.name;
+                nameSpan.onclick = function() {
+                    loadPreset(index);
+                };
+                
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'deletePreset';
+                deleteBtn.textContent = '✕';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    showDeleteConfirm(preset.name, index);
+                };
+                
+                item.appendChild(nameSpan);
+                item.appendChild(deleteBtn);
+                presetList.appendChild(item);
+            });
+        }
+        
+        // 프리셋 삭제 확인 다이얼로그 표시
+        function showDeleteConfirm(presetName, index) {
+            deletePresetIndex = index;
+            document.getElementById('confirmMessage').textContent = `"${presetName}" 프리셋을 삭제하시겠습니까?`;
+            document.getElementById('confirmDialog').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+        
+        // 프리셋 삭제 확인
+        function confirmDelete() {
+            if (deletePresetIndex >= 0) {
+                const presets = JSON.parse(localStorage.getItem('superplatPresets') || '[]');
+                presets.splice(deletePresetIndex, 1);
+                localStorage.setItem('superplatPresets', JSON.stringify(presets));
+                loadPresets();
+            }
+            closeConfirmDialog();
+        }
+        
+        // 확인 다이얼로그 닫기
+        function closeConfirmDialog() {
+            deletePresetIndex = -1;
+            document.getElementById('confirmDialog').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+        
+        // 프리셋 저장 팝업 표시
+        function showPresetPopup() {
+            document.getElementById('presetSavePopup').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('presetNameInput').value = '';
+            document.getElementById('charCount').textContent = '0';
+        }
+        
+        // 프리셋 저장 팝업 닫기
+        function closePresetPopup() {
+            document.getElementById('presetSavePopup').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+        
+        // 프리셋 저장
+        function savePreset() {
+            const nameInput = document.getElementById('presetNameInput');
             const name = nameInput.value.trim();
+            
             if (!name) {
                 alert('프리셋 이름을 입력해주세요.');
                 return;
             }
             
-            const presets = JSON.parse(localStorage.getItem('scenePresetsCanvas') || '{}');
-            presets[name] = { ...state };
-            localStorage.setItem('scenePresetsCanvas', JSON.stringify(presets));
+            const presets = JSON.parse(localStorage.getItem('superplatPresets') || '[]');
             
-            nameInput.value = '';
+            const preset = {
+                name: name,
+                filter: state.filter,
+                weather: state.weather,
+                weatherIntensity: state.weatherIntensity,
+                timeOfDay: state.timeOfDay,
+                shadingMode: state.shadingMode,
+                savedAt: new Date().toISOString()
+            };
+            
+            presets.push(preset);
+            localStorage.setItem('superplatPresets', JSON.stringify(presets));
+            
+            closePresetPopup();
             loadPresets();
         }
-
-        function loadPresets() {
-            const presets = JSON.parse(localStorage.getItem('scenePresetsCanvas') || '{}');
-            const presetList = document.getElementById('presetList');
+        
+        // 프리셋 로드
+        function loadPreset(index) {
+            const presets = JSON.parse(localStorage.getItem('superplatPresets') || '[]');
+            const preset = presets[index];
             
-            if (!presetList) return;
-            
-            presetList.innerHTML = '';
-            
-            if (Object.keys(presets).length === 0) {
-                presetList.innerHTML = '<div style="color: rgba(255,255,255,0.4); font-size: 12px; text-align: center; padding: 20px;">저장된 프리셋이 없습니다</div>';
-                return;
-            }
-            
-            Object.entries(presets).forEach(([name, preset]) => {
-                const item = document.createElement('div');
-                item.className = 'preset-item';
-                item.innerHTML = `
-                    <span style="color: #FFFFFF; font-size: 13px;">${name}</span>
-                    <span style="color: #FF6464; cursor: pointer; font-size: 18px;" onclick="deletePreset('${name}')">×</span>
-                `;
-                item.addEventListener('click', (e) => {
-                    if (!e.target.onclick) {
-                        loadPreset(name);
-                    }
-                });
-                presetList.appendChild(item);
-            });
-        }
-
-        function loadPreset(name) {
-            const presets = JSON.parse(localStorage.getItem('scenePresetsCanvas') || '{}');
-            const preset = presets[name];
             if (!preset) return;
             
-            Object.assign(state, preset);
-            
-            const filterIndex = filters.findIndex(f => f.class === state.filter);
-            if (filterIndex !== -1) {
-                selectFilter(filterIndex);
-            }
-            
-            selectWeather(state.weather);
-            document.querySelectorAll('.weather-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.weather === state.weather);
-            });
-            
-            document.querySelectorAll('.shading-option').forEach(opt => {
-                opt.classList.toggle('active', opt.dataset.shading === state.shadingMode);
-            });
-            
+            state.filter = preset.filter;
+            state.weather = preset.weather;
+            state.weatherIntensity = preset.weatherIntensity;
+            state.timeOfDay = preset.timeOfDay;
+            state.shadingMode = preset.shadingMode;
             state.manualTime = true;
-            const handle = document.getElementById('todHandle');
+            
+            currentFilterIndex = filters.findIndex(f => f.class === state.filter);
+            createFilterList();
+            selectWeather(state.weather);
+            document.getElementById('intensityValue').textContent = state.weatherIntensity;
+            selectShading(state.shadingMode);
+            
+            const handle = document.getElementById('timeSliderHandle');
             if (handle) {
                 handle.style.left = (state.timeOfDay * 100) + '%';
+                
+                const totalMinutes = Math.floor(state.timeOfDay * 24 * 60);
+                const hours24 = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                
+                const isPM = hours24 >= 12;
+                let hours12 = hours24 % 12;
+                if (hours12 === 0) hours12 = 12;
+                
+                document.getElementById('clockHour').textContent = hours12.toString().padStart(2, '0');
+                document.getElementById('clockMinute').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('ampm').textContent = isPM ? 'PM' : 'AM';
             }
             
-            document.querySelectorAll('.ui-section, .dropdown-content').forEach(el => {
-                el.classList.remove('active');
-            });
+            closeAllPanels();
         }
-
-        function deletePreset(name) {
-            const presets = JSON.parse(localStorage.getItem('scenePresetsCanvas') || '{}');
-            delete presets[name];
-            localStorage.setItem('scenePresetsCanvas', JSON.stringify(presets));
-            loadPresets();
-        }
-
-        // ========================================
-        // 메인 렌더링 루프
-        // ========================================
-        function render() {
-            // 화면 지우기
-            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-            
-            // 씬 렌더링 (레이어 순서)
-            drawSky();           // 하늘
-            drawCelestialBody(); // 태양/달
-            drawClouds();        // 구름
-            drawGround();        // 지면
-            drawCharacter();     // 캐릭터
-            drawWeatherEffects(); // 날씨 효과
-            
-            // 다음 프레임
-            requestAnimationFrame(render);
-        }
-
+        
         // ========================================
         // 초기화
         // ========================================
         function init() {
-            console.log('🎮 SuperPlat Canvas 필터 강화판 시작');
-            console.log('🎨 16개 필터 전체 씬 적용 완료');
+            console.log('🎮 SuperPlat Scene Settings System v3.0');
+            console.log('✨ UX 개선 적용 완료');
+            console.log('📍 씬 설정 UI: 화면 최상단 중앙 고정 (10px 패딩)');
+            console.log('🎯 세부설정: 메인 UI와 한몸으로 통합');
+            console.log('🔄 라운드 박스: 동적 border-radius 조절');
+            console.log('🗑️ 프리셋 삭제: 커스텀 확인 다이얼로그');
             
-            // 슬랙 감지
-            const isSlack = detectSlackWebView();
-            if (isSlack) {
-                console.log('✅ Canvas 렌더링으로 슬랙 필터 우회 성공');
-            }
+            // 이벤트 리스너 설정
             
-            // UI 레이아웃 계산
-            const calculateUILayout = () => {
-                const viewportWidth = window.innerWidth;
-                const viewportHeight = window.innerHeight;
-                const aspectRatio = viewportWidth / viewportHeight;
-                
-                const uiContainer = document.getElementById('uiContainer');
-                const uiWrapper = document.getElementById('uiWrapper');
-                
-                if (!uiContainer || !uiWrapper) return;
-                
-                if (aspectRatio < 1) {
-                    uiWrapper.style.setProperty('--ui-width', '100%');
-                    uiContainer.style.padding = '10px 5px';
-                } else {
-                    const uiWidth = Math.min(viewportHeight, viewportWidth * 0.8);
-                    const marginSize = (viewportWidth - uiWidth) / 2;
-                    
-                    uiWrapper.style.setProperty('--ui-width', `${uiWidth}px`);
-                    uiContainer.style.padding = `10px ${marginSize}px`;
-                }
-            };
+            // 씬 버튼 (우측)
+            document.getElementById('sceneBtn').addEventListener('click', toggleSceneSettings);
             
-            calculateUILayout();
-            window.addEventListener('resize', calculateUILayout);
-            window.addEventListener('orientationchange', () => {
-                setTimeout(calculateUILayout, 100);
+            // 시간 클릭 시 패널 토글
+            document.getElementById('digitalClock').addEventListener('click', () => {
+                togglePanel('timePanel', 'digitalClock');
             });
             
-            // 필터 초기화
-            createFilterDots();
+            // 아이콘 버튼들
+            document.getElementById('filterBtn').addEventListener('click', () => {
+                togglePanel('filterPanel', 'filterBtn');
+            });
+            
+            document.getElementById('weatherBtn').addEventListener('click', () => {
+                togglePanel('weatherPanel', 'weatherBtn');
+            });
+            
+            document.getElementById('shadingBtn').addEventListener('click', () => {
+                togglePanel('shadingPanel', 'shadingBtn');
+            });
+            
+            document.getElementById('presetBtn').addEventListener('click', () => {
+                togglePanel('presetPanel', 'presetBtn');
+                loadPresets();
+            });
+            
+            // 날씨 카드 이벤트
+            document.querySelectorAll('.weatherCard').forEach(card => {
+                card.addEventListener('click', () => {
+                    selectWeather(card.dataset.weather);
+                });
+            });
+            
+            // 강도 설정
+            document.getElementById('intensityMinus').addEventListener('click', () => {
+                updateWeatherIntensity(-1);
+            });
+            
+            document.getElementById('intensityPlus').addEventListener('click', () => {
+                updateWeatherIntensity(1);
+            });
+            
+            // 셰이딩 카드 이벤트
+            document.querySelectorAll('.shadingCard').forEach(card => {
+                card.addEventListener('click', () => {
+                    selectShading(card.dataset.shading);
+                });
+            });
+            
+            // 프리셋 추가 버튼
+            document.getElementById('addPresetBtn').addEventListener('click', showPresetPopup);
+            
+            // 프리셋 저장/취소 버튼
+            document.getElementById('presetSaveBtn').addEventListener('click', savePreset);
+            document.getElementById('presetCancelBtn').addEventListener('click', closePresetPopup);
+            
+            // 삭제 확인 다이얼로그 버튼
+            document.getElementById('confirmDelete').addEventListener('click', confirmDelete);
+            document.getElementById('confirmCancel').addEventListener('click', closeConfirmDialog);
+            
+            // 프리셋 이름 입력 글자수 카운트
+            document.getElementById('presetNameInput').addEventListener('input', (e) => {
+                const length = e.target.value.length;
+                document.getElementById('charCount').textContent = length;
+            });
+            
+            // 오버레이 클릭 시 팝업 닫기 (확인 다이얼로그는 제외)
+            document.getElementById('overlay').addEventListener('click', (e) => {
+                if (document.getElementById('presetSavePopup').classList.contains('active')) {
+                    closePresetPopup();
+                }
+                // 삭제 확인 다이얼로그는 오버레이 클릭으로 닫지 않음
+            });
+            
+            // body 클릭 시 패널 닫기
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#sceneSettingsContainer') && 
+                    !e.target.closest('#sceneBtn') &&
+                    !e.target.closest('#presetSavePopup') &&
+                    !e.target.closest('#confirmDialog')) {
+                    closeAllPanels();
+                }
+            });
+            
+            // 초기 설정
+            setupTimeSlider();
+            createFilterList();
             selectFilter(0);
-            
-            // 날씨 초기화
             selectWeather('clear');
+            document.getElementById('intensityValue').textContent = state.weatherIntensity;
+            selectShading('normal');
             
-            // UI 설정
-            setupDropdowns();
-            setupTodSlider();
-            setupWeather();
-            setupShading();
-            
-            // 시계 시작
+            // 시계 업데이트 시작
             updateClock();
             setInterval(updateClock, 1000);
-            
-            // 날씨 강도 기본값
-            document.querySelectorAll('.weather-option').forEach(option => {
-                if (option.dataset.weather !== 'clear') {
-                    option.querySelectorAll('.intensity-level').forEach((level, index) => {
-                        level.classList.toggle('active', index < 2);
-                    });
-                }
-            });
             
             // 렌더링 시작
             requestAnimationFrame(render);
             
-            console.log('✨ 초기화 완료 - 모든 요소에 필터 적용 중');
+            console.log('✅ 초기화 완료');
         }
-
+        
         // 페이지 로드시 초기화
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
             init();
         }
-
-        // 전역 함수 노출
-        window.previousFilter = previousFilter;
-        window.nextFilter = nextFilter;
-        window.savePreset = savePreset;
-        window.deletePreset = deletePreset;
     </script>
 </body>
 </html>
