@@ -1023,7 +1023,80 @@
                     filtered.g = Math.min(255, color.g * 0.6 + 100);
                     filtered.b = Math.min(255, color.b * 0.6 + 100);
                     break;
-                // 나머지 필터들도 필요에 따라 구현
+                    
+                case 'ash': // 재처럼 회색빛이 도는 차가운 톤
+                    const ashGray = (color.r + color.g + color.b) / 3;
+                    filtered.r = Math.min(255, ashGray * 0.9 + 20);
+                    filtered.g = Math.min(255, ashGray * 0.9 + 20);
+                    filtered.b = Math.min(255, ashGray * 1.1 + 25);
+                    break;
+                    
+                case 'noir': // 느와르 - 높은 대비의 어두운 흑백
+                    const noirGray = (color.r * 0.299 + color.g * 0.587 + color.b * 0.114);
+                    // 대비를 극대화
+                    const noirContrast = noirGray < 128 ? 
+                        Math.max(0, noirGray * 0.5) : 
+                        Math.min(255, 128 + (noirGray - 128) * 1.5);
+                    filtered.r = filtered.g = filtered.b = noirContrast * 0.85; // 전체적으로 어둡게
+                    break;
+                    
+                case 'vintage': // 빈티지 - 바랜 듯한 황갈색 톤
+                    filtered.r = Math.min(255, color.r * 0.9 + 40);
+                    filtered.g = Math.min(255, color.g * 0.8 + 20);
+                    filtered.b = Math.min(255, color.b * 0.6);
+                    // 채도를 낮춤
+                    const vintageAvg = (filtered.r + filtered.g + filtered.b) / 3;
+                    filtered.r = filtered.r * 0.7 + vintageAvg * 0.3;
+                    filtered.g = filtered.g * 0.7 + vintageAvg * 0.3;
+                    filtered.b = filtered.b * 0.7 + vintageAvg * 0.3;
+                    break;
+                    
+                case 'nostalgia': // 노스텔지어 - 따뜻하고 부드러운 추억의 색감
+                    filtered.r = Math.min(255, color.r * 1.1 + 30);
+                    filtered.g = Math.min(255, color.g * 1.05 + 20);
+                    filtered.b = Math.min(255, color.b * 0.9);
+                    // 부드러운 느낌을 위해 대비를 낮춤
+                    filtered.r = Math.min(255, filtered.r * 0.9 + 25);
+                    filtered.g = Math.min(255, filtered.g * 0.9 + 25);
+                    filtered.b = Math.min(255, filtered.b * 0.9 + 25);
+                    break;
+                    
+                case 'purple': // 퍼플 - 보라색 톤
+                    filtered.r = Math.min(255, color.r * 0.8 + 50);
+                    filtered.g = Math.min(255, color.g * 0.6);
+                    filtered.b = Math.min(255, color.b * 1.3 + 60);
+                    break;
+                    
+                case 'crimson': // 크림슨 - 진한 붉은색 톤
+                    filtered.r = Math.min(255, color.r * 1.4 + 40);
+                    filtered.g = Math.min(255, color.g * 0.5);
+                    filtered.b = Math.min(255, color.b * 0.6);
+                    break;
+                    
+                case 'blood': // 블러드 - 피처럼 어둡고 붉은 톤
+                    filtered.r = Math.min(255, color.r * 0.9 + 30);
+                    filtered.g = Math.min(255, color.g * 0.3);
+                    filtered.b = Math.min(255, color.b * 0.3);
+                    // 전체적으로 어둡게
+                    filtered.r *= 0.8;
+                    filtered.g *= 0.7;
+                    filtered.b *= 0.7;
+                    break;
+                    
+                case 'glow': // 광휘 - 밝고 빛나는 느낌
+                    // 밝기를 증가시키고 채도를 높임
+                    const glowFactor = 1.3;
+                    filtered.r = Math.min(255, color.r * glowFactor + 30);
+                    filtered.g = Math.min(255, color.g * glowFactor + 30);
+                    filtered.b = Math.min(255, color.b * glowFactor + 30);
+                    // 하이라이트 효과 추가
+                    const glowMax = Math.max(filtered.r, filtered.g, filtered.b);
+                    if (glowMax > 200) {
+                        filtered.r = Math.min(255, filtered.r + 20);
+                        filtered.g = Math.min(255, filtered.g + 20);
+                        filtered.b = Math.min(255, filtered.b + 20);
+                    }
+                    break;
             }
             
             return filtered;
